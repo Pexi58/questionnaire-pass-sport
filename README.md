@@ -15,8 +15,9 @@ L'objectif est de mesurer l'effet de la marque sur le prix accepté et sur la pe
 | Logo | Logo Canal+ | Aucun |
 | Titre | Le Pass 1 match Canal+ | Le Pass 1 match |
 | Première phrase | *Canal+* lance un pass sans engagement… | *Une plateforme de streaming* lance un pass sans engagement… |
+| Q10 | « Je trouverais pertinent que *la marque Canal+* propose ce service de streaming. » | « Je trouverais pertinent que *cette plateforme de streaming* propose ce service. » |
 
-Le reste du questionnaire est identique dans les deux versions. Aucune question ne cite la marque, sauf la Q10, posée après toutes les questions sur la perception de l'offre.
+Le reste du questionnaire est identique dans les deux versions, et aucune autre question ne cite la marque. Le groupe B ne voit le nom Canal+ que dans la liste des abonnements de la Q3, au milieu des autres offres et avant la présentation du pass.
 
 **Tirage au sort.** La version est tirée au hasard, à 50/50, à la première visite. Elle reste ensuite enregistrée dans le navigateur : recharger la page ne fait pas changer de version. Un test sur le site en ligne, avec 200 nouveaux visiteurs simulés, a donné 93 A et 107 B. Cet écart est normal avec un tirage au hasard.
 
@@ -37,7 +38,7 @@ Le reste du questionnaire est identique dans les deux versions. Aucune question 
 | Q8 | Valeur perçue | 4 | Netemeyer et al. (2004), version adaptée au sport par Shapiro et al. (2019) |
 | Q9a | Risque financier perçu | 4 | Shapiro, Reams & So (2019) |
 | Q9b | Intention d'achat | 3 | Dodds et al. (1991), version de Shapiro et al. (2019) |
-| Q10 | Pertinence de la marque : « Je trouverais pertinent que la marque Canal+ propose ce service de streaming » | 1 | — |
+| Q10 | Pertinence de la marque : Canal+ en A, « cette plateforme de streaming » en B | 1 | — |
 
 ## Les données (Google Sheet)
 
@@ -58,7 +59,7 @@ Chaque réponse est envoyée dans un Google Sheet, dans l'onglet « Réponses »
 | `valeur_1` à `valeur_4` | Q8 | De 1 à 7 |
 | `risque_1` à `risque_4` | Q9a | De 1 (pas du tout risqué) à 7 (très risqué) |
 | `intention_1` à `intention_3` | Q9b | De 1 à 7 |
-| `manipulation_check` | Q10 | Pertinence de Canal+ pour ce service, de 1 à 7 |
+| `manipulation_check` | Q10 | Pertinence de la marque pour ce service, de 1 à 7 (formulation selon `version`) |
 | `age` | Q11 | Âge en années |
 | `situation` | Q12 | Etudiant / Actif / Sans emploi / Retraite |
 | `genre` | Q13 | Femme / Homme / Autre / NSP |
@@ -67,7 +68,7 @@ Chaque réponse est envoyée dans un Google Sheet, dans l'onglet « Réponses »
 ### Pistes pour l'analyse
 
 1. **Écarter les réponses non attentives** : supprimer les lignes où `piege_attention` n'est pas « Souvent ».
-2. **Pertinence de la marque (Q10)** : comparer `manipulation_check` entre A et B pour voir si Canal+ paraît légitime pour proposer ce pass. Cette question ne vérifie pas que les répondants ont remarqué la marque en version A.
+2. **Pertinence de la marque (Q10)** : comparer `manipulation_check` entre A et B. On voit ainsi si Canal+ paraît plus légitime qu'une plateforme anonyme pour proposer ce pass. Comme la formulation diffère selon le groupe, cette question ne vérifie pas que les répondants du groupe A ont remarqué la marque.
 3. **Calculer un score par échelle** : faire la moyenne des items (par exemple `qualite_1` à `qualite_4`). Vérifier la fiabilité avec l'alpha de Cronbach, qui doit être d'au moins 0,7.
 4. **Comparer A et B** sur la qualité, la valeur, le risque, l'intention, les prix de Van Westendorp et le prix maximum Gabor-Granger (test t ou test de Mann-Whitney).
 
