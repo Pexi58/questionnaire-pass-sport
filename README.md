@@ -2,7 +2,7 @@
 
 **Lien du questionnaire : https://pexi58.github.io/questionnaire-pass-sport/**
 
-Questionnaire en ligne réalisé dans le cadre du cours *Prix et budget marketing*. Il présente une offre fictive, le « Pass 1 match » : un pass sans abonnement pour regarder un seul match ou une seule course en direct. Il mesure ensuite le prix que les répondants sont prêts à payer et leur perception de l'offre.
+Questionnaire en ligne réalisé dans le cadre du cours *Prix et budget marketing* (Master 1 Marketing-Vente, IAE Clermont-Auvergne). Il présente une offre fictive, le « Pass 1 match » : un pass sans abonnement pour regarder un seul match ou une seule course en direct. Il mesure ensuite le prix que les répondants sont prêts à payer et leur perception de l'offre.
 
 > L'offre est fictive et Canal+ n'est pas associé à cette étude. Les réponses sont anonymes.
 
