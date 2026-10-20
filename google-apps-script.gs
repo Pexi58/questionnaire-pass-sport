@@ -2,21 +2,21 @@
  * Réception des réponses du questionnaire « Pass 1 match » (test A/B) dans un Google Sheet.
  * À coller dans le Sheet : Extensions > Apps Script, à la place du code existant.
  */
-const NOM_ONGLET = 'Réponses';
+// Questionnaire refait le 20/10/2026 : les réponses vont dans un nouvel onglet, créé automatiquement
+// avec les bonnes colonnes. L'ancien onglet « Réponses » reste intact.
+const NOM_ONGLET = 'Réponses v2';
 
 // Ordre des colonnes = ordre des questions. Une donnée reçue qui n'est pas dans cette liste
 // est ajoutée automatiquement en nouvelle colonne à droite (rien n'est jamais perdu).
 const COLONNES = [
   'horodatage', 'version',
-  'frequence_sport', 'sport_foot', 'sport_f1', 'sport_rugby',
-  'abo_actuel', 'abo_passe', 'motif_arret',
+  'frequence_sport',
+  'sport_foot', 'sport_f1', 'sport_rugby', 'sport_tennis', 'sport_motogp', 'sport_basket',
+  'sport_autre_nom', 'sport_autre',
+  'abo_actuel', 'abo_actuel_autre', 'abo_passe', 'abo_passe_autre',
+  'intention_achat',
   'vw_trop_bas', 'vw_bon_marche', 'vw_cher', 'vw_trop_cher',
   'gabor_granger_max_accepte',
-  'qualite_1', 'qualite_2', 'qualite_3', 'qualite_4',
-  'valeur_1', 'valeur_2', 'valeur_3', 'valeur_4',
-  'risque_1', 'risque_2', 'risque_3', 'risque_4',
-  'intention_1', 'intention_2', 'intention_3',
-  'manipulation_check',
   'age', 'situation', 'genre', 'piege_attention'
 ];
 
