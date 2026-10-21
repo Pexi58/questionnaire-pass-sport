@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tableau de bord Pass 1 match</title>
+<!-- Aucune réponse n'est enregistrée dans ce fichier : il lit le Google Sheet (ou un CSV choisi) à chaque ouverture.
+     Les calculs reprennent ceux du squelette du cours (outils.py de analyse-projet-prix) ; le rapport Python
+     rapport_analyse.html reste la version de référence. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.6/jstat.min.js"></script>
+<style>
+:root {
+  color-scheme: light;
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781; --grid:#e1e0d9; --axis:#c3c2b7;
+  --ring:rgba(11,11,11,0.10); --accent:#2a78d6; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --zone:rgba(42,120,214,0.10);
+  --warnbg:#fdf3e1; --warnink:#7a4f00; --okbg:#e6f4ec; --okink:#006300;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781; --grid:#2c2c2a; --axis:#383835;
+    --ring:rgba(255,255,255,0.10); --accent:#3987e5; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --zone:rgba(57,135,229,0.14);
+    --warnbg:#3a2e14; --warnink:#f0c46b; --okbg:#173325; --okink:#7fd3a0;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781; --grid:#2c2c2a; --axis:#383835;
+  --ring:rgba(255,255,255,0.10); --accent:#3987e5; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --zone:rgba(57,135,229,0.14);
+  --warnbg:#3a2e14; --warnink:#f0c46b; --okbg:#173325; --okink:#7fd3a0;
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--page); color:var(--ink); font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+main { max-width:1000px; margin:0 auto; padding:20px 16px 64px; }
+h1 { font-size:1.6rem; margin:0 0 2px; } h2 { font-size:1.2rem; margin:4px 0 10px; } h3 { font-size:1rem; margin:20px 0 6px; }
+.sub { color:var(--ink2); margin:0; }
+.panel { background:var(--surface); border:1px solid var(--ring); border-radius:12px; padding:14px 18px; margin:14px 0; }
+.controls { display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center; }
+.controls label { display:flex; gap:6px; align-items:center; cursor:pointer; }
+.source { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.source input[type=url] { flex:1 1 320px; min-width:0; padding:7px 9px; border-radius:8px; border:1px solid var(--axis); background:var(--page); color:var(--ink); font:inherit; }
+button, .bouton { font:inherit; padding:7px 12px; border-radius:8px; border:1px solid var(--axis); background:var(--page); color:var(--ink); cursor:pointer; }
+button.principal { background:var(--accent); border-color:var(--accent); color:#fff; }
+input[type=number] { width:76px; padding:5px 6px; border-radius:6px; border:1px solid var(--axis); background:var(--page); color:var(--ink); font:inherit; }
+#etat { color:var(--ink2); font-size:.88rem; margin-top:8px; }
+.tuiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+.tuile { background:var(--surface); border:1px solid var(--ring); border-radius:10px; padding:12px 14px; }
+.tuile .lab { color:var(--ink2); font-size:.82rem; } .tuile .val { font-size:1.45rem; font-weight:650; } .tuile .pied { color:var(--muted); font-size:.8rem; }
+.tab { overflow-x:auto; margin:8px 0; }
+table { border-collapse:collapse; width:100%; font-size:.9rem; }
+th, td { border-bottom:1px solid var(--grid); padding:6px 8px; text-align:left; vertical-align:top; }
+th { color:var(--ink2); font-weight:600; }
+table.num td:not(:first-child), table.num th:not(:first-child) { text-align:right; font-variant-numeric:tabular-nums; }
+tr.off td { color:var(--muted); }
+td.max { font-weight:700; }
+.note { color:var(--ink2); font-size:.88rem; }
+.alerte { background:var(--warnbg); color:var(--ink); border-radius:8px; padding:10px 12px; }
+.badge { display:inline-block; font-size:.74rem; font-weight:600; border-radius:99px; padding:2px 8px; vertical-align:middle; background:var(--grid); color:var(--ink); }
+.badge.sig { background:var(--accent); color:#fff; } .badge.ok { background:var(--okbg); color:var(--okink); } .badge.ko { background:var(--warnbg); color:var(--warnink); }
+.test { color:var(--ink2); font-size:.88rem; font-variant-numeric:tabular-nums; }
+.carte { border:1px solid var(--grid); border-radius:10px; padding:2px 14px 6px; margin:10px 0; }
+.chart { position:relative; }
+.chart > svg { width:100%; height:auto; display:block; overflow:visible; }
+.legende svg, .bulle svg { flex:none; display:inline-block; }
+.chart text { fill:var(--muted); font-size:11px; font-family:inherit; }
+.chart .lab-ink { fill:var(--ink2); }
+.legende { display:flex; flex-wrap:wrap; gap:4px 16px; font-size:.85rem; color:var(--ink2); margin:6px 0 2px; }
+.legende span { display:inline-flex; align-items:center; gap:6px; }
+.bulle { position:absolute; pointer-events:none; background:var(--surface); border:1px solid var(--ring); border-radius:8px; padding:6px 9px;
+         font-size:.82rem; box-shadow:0 2px 8px rgba(0,0,0,.12); display:none; white-space:nowrap; z-index:2; }
+.bulle b { color:var(--ink); } .bulle div { color:var(--ink2); display:flex; align-items:center; gap:6px; }
+details summary { cursor:pointer; color:var(--accent); }
+.cache { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Tableau de bord du questionnaire « Pass 1 match »</h1>
+    <p class="sub">Test A/B : version Canal+ contre version sans marque. Les chiffres se recalculent à chaque ouverture et à chaque clic.</p>
+  </header>
+
+  <div class="panel">
+    <div class="source">
+      <input type="url" id="lien" placeholder="Lien CSV « Publier sur le web » de l'onglet « Réponses v2 »" aria-label="Lien CSV du Google Sheet">
+      <button class="principal" id="charger">Charger</button>
+      <label class="bouton">Ou choisir un fichier CSV<input type="file" id="fichier" accept=".csv,text/csv" class="cache"></label>
+    </div>
+    <div id="etat">Aucune donnée chargée.</div>
+  </div>
+
+  <div class="panel" id="filtres" aria-label="Règles de nettoyage">
+    <strong>Règles de nettoyage</strong> <span class="note">(décochez pour voir l'effet d'une règle)</span>
+    <div class="controls" style="margin-top:8px">
+      <label><input type="checkbox" id="r_doublons" checked> Retirer les doublons</label>
+      <label><input type="checkbox" id="r_mineurs" checked> Retirer les moins de 18 ans</label>
+      <label><input type="checkbox" id="r_jamais"> Retirer ceux qui ne regardent « Jamais » de sport</label>
+      <label><input type="checkbox" id="r_attention" checked> Retirer les contrôles d'attention ratés</label>
+    </div>
+    <p class="note" style="margin:8px 0 0">Toujours appliquées (règle du cours) : Van Westendorp dans le désordre, Gabor-Granger incohérent.
+      Réglages du groupe au 21/10 : doublons, moins de 18 ans et contrôles d'attention retirés.</p>
+  </div>
+
+  <div id="contenu" class="cache">
+    <div class="tuiles" id="tuiles"></div>
+    <section class="panel" id="s_nettoyage"></section>
+    <section class="panel" id="s_manip"></section>
+    <section class="panel" id="s_tirage"></section>
+    <section class="panel" id="s_ab"></section>
+    <section class="panel" id="s_vw"></section>
+    <section class="panel" id="s_gg"></section>
+    <section class="panel" id="s_conclusion"></section>
+  </div>
+  <p class="note">Calculs repris du squelette du cours « Analyser votre projet de Prix » (CM 3) : mêmes tests (Welch, chi², puissance),
+    mêmes croisements de Van Westendorp, même table de Gabor-Granger. Hypothèses de coût et de TVA sourcées dans rapport_analyse.html (partie 7).
+    Réalisé avec l'aide d'une IA (Claude).</p>
+</main>
+
+<script>
+"use strict";
+// ======================================================================================
+// RÉGLAGES (les mêmes que config.py du squelette)
+// ======================================================================================
+const VERSIONS = { A: "Canal+", B: "sans marque" };
+const PRIX_ENVISAGE = 5.99;
+const PRIX_GG = [3.99, 5.99, 7.99, 10.99, 14.99, 21.99];
+const VW = ["vw_trop_bas", "vw_bon_marche", "vw_cher", "vw_trop_cher"];
+const ATTENTION_RATEE = ["Jamais", "Parfois", "Toujours"];      // Q11 : la bonne réponse est « Souvent »
+const SEUIL = 0.05;
+const TVA = 0.20;                                              // BOFiP BOI-TVA-LIQ-30-20-100 (voir le rapport)
+const COUTS = [                                               // € HT par pass, sources dans rapport_analyse.html
+  { nom: "basse", cout: 0.28, src: "Disney, segment Sports : 5,58 % du CA" },
+  { nom: "centrale", cout: 0.76, src: "Netflix, other cost of revenues : 15,17 % du CA" },
+  { nom: "haute", cout: 2.57, src: "Netflix, cost of revenues total : 51,51 % du CA" },
+];
+const VD = [                                                  // variables dépendantes du test A/B
+  { col: "intention_achat", lib: "Prêt(e) à acheter ce pass (Q5)", nature: "binaire" },
+  { col: "vw_trop_cher", lib: "Seuil « trop cher » (Van Westendorp, Q6d)", nature: "quanti" },
+  { col: "gabor_granger_max_accepte", lib: "Prix maximum accepté (Gabor-Granger, Q7 ; 0 = refus dès 3,99 €)", nature: "quanti" },
+  { col: "gg_5_99", lib: "Achèterait au prix envisagé de 5,99 € (Gabor-Granger)", nature: "binaire" },
+];
+const CLE_LIEN = "pass1match_lien_csv";
+
+// ======================================================================================
+// FORMATS (comme outils.nb et outils.p_txt)
+// ======================================================================================
+function nb(v, dec = 2) {
+  if (v === null || v === undefined || Number.isNaN(v)) return "—";
+  const s = Math.abs(v).toFixed(dec).split(".");
+  s[0] = s[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return (v < 0 && Number(Math.abs(v).toFixed(dec)) !== 0 ? "-" : "") + s.join(",");
+}
+const euros = (v, dec = 2) => `${nb(v, dec)} €`;
+const pct = (v, dec = 0) => `${nb(v * 100, dec)} %`;
+const pTxt = p => (p < 0.001 ? "p < 0,001" : `p = ${nb(p, 3)}`);
+function qualif(v, s = [0.2, 0.5, 0.8]) {
+  const a = Math.abs(v);
+  return ["négligeable", "petit", "moyen", "fort"][s.filter(x => a >= x).length];
+}
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+function tableau(entetes, lignes, classe = "", classesLignes = []) {
+  const th = entetes.map(h => `<th>${h}</th>`).join("");
+  const tr = lignes.map((l, i) => `<tr class="${classesLignes[i] || ""}">${l.map(c => `<td>${c}</td>`).join("")}</tr>`).join("");
+  return `<div class="tab"><table class="${classe}"><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>`;
+}
+
+// ======================================================================================
+// STATISTIQUES (mêmes formules que scipy / statsmodels dans le squelette)
+// ======================================================================================
+const moyenne = a => a.reduce((s, x) => s + x, 0) / a.length;
+const variance = a => { const m = moyenne(a); return a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1); };
+
+function welch(a, b) {                                         // scipy.stats.ttest_ind(equal_var=False) + d de Cohen
+  const ma = moyenne(a), mb = moyenne(b), va = variance(a), vb = variance(b), na = a.length, nbb = b.length;
+  const se2 = va / na + vb / nbb;
+  const t = (ma - mb) / Math.sqrt(se2);
+  const ddl = se2 ** 2 / ((va / na) ** 2 / (na - 1) + (vb / nbb) ** 2 / (nbb - 1));
+  const p = 2 * (1 - jStat.studentt.cdf(Math.abs(t), ddl));
+  const d = (ma - mb) / Math.sqrt((va + vb) / 2);
+  return { ma, mb, na, nb: nbb, t, ddl, p, d };
+}
+
+function tableauCroise(lignes, valeursLigne, col) {           // pd.crosstab(version, col), colonnes triées
+  const cats = [...new Set(lignes.map(r => String(r[col])))].sort();
+  const tab = valeursLigne.map(v => cats.map(c => lignes.filter(r => r.version === v && String(r[col]) === c).length));
+  return { cats, tab };
+}
+
+function chi2(tab, correction) {                               // scipy.stats.chi2_contingency
+  const r = tab.length, c = tab[0].length;
+  const tl = tab.map(l => l.reduce((s, x) => s + x, 0));
+  const tc = tab[0].map((_, j) => tab.reduce((s, l) => s + l[j], 0));
+  const n = tl.reduce((s, x) => s + x, 0);
+  const ddl = (r - 1) * (c - 1);
+  if (ddl === 0 || tl.includes(0) || tc.includes(0)) return null;
+  let khi = 0, petit = false;
+  for (let i = 0; i < r; i++) for (let j = 0; j < c; j++) {
+    const att = tl[i] * tc[j] / n;
+    if (att < 5) petit = true;
+    let o = tab[i][j];
+    if (correction && ddl === 1) {                           // correction de Yates, comme scipy quand ddl = 1
+      const ecart = att - o;
+      o = o + Math.sign(ecart) * Math.min(0.5, Math.abs(ecart));
+    }
+    khi += (o - att) ** 2 / att;
+  }
+  const p = 1 - jStat.chisquare.cdf(khi, ddl);
+  const v = Math.sqrt(khi / (n * (Math.min(r, c) - 1)));
+  return { khi, ddl, p, v, petit, n };
+}
+
+function puissance(n1, n2, effet) {                            // statsmodels TTestIndPower().power, bilatéral
+  const ddl = n1 + n2 - 2;
+  const nc = effet * Math.sqrt(n1 * n2 / (n1 + n2));
+  const crit = jStat.studentt.inv(1 - SEUIL / 2, ddl);
+  return 1 - jStat.noncentralt.cdf(crit, ddl, nc) + jStat.noncentralt.cdf(-crit, ddl, nc);
+}
+
+function percentile(a, q) {                                    // numpy.percentile, interpolation linéaire
+  const s = [...a].sort((x, y) => x - y);
+  const pos = (s.length - 1) * q / 100, i = Math.floor(pos), f = pos - i;
+  return i + 1 < s.length ? s[i] + f * (s[i + 1] - s[i]) : s[i];
+}
+
+function courbesVW(d, grille) {                                // outils.courbes_vw
+  if (!grille) {
+    const hi = percentile(d.map(r => r.vw_trop_cher), 97);
+    grille = Array.from({ length: 400 }, (_, i) => hi * i / 399);
+  }
+  const n = d.length;
+  const part = (f) => grille.map(p => d.filter(r => f(r, p)).length / n);
+  return {
+    prix: grille,
+    trop_bon_marche: part((r, p) => r.vw_trop_bas >= p),
+    bon_marche: part((r, p) => r.vw_bon_marche >= p),
+    cher: part((r, p) => r.vw_cher <= p),
+    trop_cher: part((r, p) => r.vw_trop_cher <= p),
+  };
+}
+
+function croisement(c, a, b) {                                 // outils.croisement, ligne à ligne
+  const diff = c[a].map((x, i) => x - c[b][i]), prix = c.prix;
+  const signe = diff.map(Math.sign);
+  const depart = signe.find(s => s !== 0) || 0;
+  for (let i = 1; i < diff.length; i++) {
+    if (signe[i] !== 0 && signe[i] !== depart) {
+      let j = i - 1;
+      while (j >= 0 && signe[j] === 0) j--;
+      if (j < i - 1) return (prix[j + 1] + prix[i - 1]) / 2;
+      return prix[j] + (prix[i] - prix[j]) * diff[j] / (diff[j] - diff[i]);
+    }
+  }
+  return NaN;
+}
+const pointsVW = c => ({
+  PMC: croisement(c, "trop_bon_marche", "cher"), OPP: croisement(c, "trop_bon_marche", "trop_cher"),
+  IPP: croisement(c, "bon_marche", "cher"), PME: croisement(c, "bon_marche", "trop_cher"),
+});
+
+// ======================================================================================
+// LES DONNÉES : lecture, préparation (comme preparer_pour_analyse.py), nettoyage (comme 01_nettoyer.py)
+// ======================================================================================
+let BRUT = null, SOURCE = "";
+
+function num(s) {
+  if (s === undefined || s === null) return NaN;
+  const t = String(s).trim().replace(",", ".");
+  return t === "" ? NaN : Number(t);
+}
+
+function preparer(texte) {
+  const res = Papa.parse(texte.replace(/^﻿/, ""), { header: true, skipEmptyLines: true });
+  const colonnes = res.meta.fields || [];
+  const manquantes = ["version", "intention_achat", ...VW, "gabor_granger_max_accepte", "age", "piege_attention"].filter(c => !colonnes.includes(c));
+  if (manquantes.length) throw new Error(`colonnes absentes du fichier : ${manquantes.join(", ")}`);
+  const questions = colonnes.filter(c => c !== "horodatage");
+  return res.data.map(r => {
+    const o = { ...r };
+    o.empreinte = questions.map(c => r[c] ?? "").join("|");
+    VW.forEach(c => (o[c] = num(r[c])));
+    o.gabor_granger_max_accepte = num(r.gabor_granger_max_accepte);
+    PRIX_GG.forEach(p => (o["gg_" + String(p).replace(".", "_")] = o.gabor_granger_max_accepte >= p - 1e-9 ? "Oui" : "Non"));
+    o.age = num(r.age);
+    o.frequence = r.frequence_sport;
+    return o;
+  });
+}
+
+function nettoyer(brut, regles) {
+  let d = brut.slice();
+  const journal = [{ etape: "Réponses reçues", retires: null, reste: d.length, actif: true }];
+  const etape = (actif, aRetirer, raison) => {
+    if (!actif) { journal.push({ etape: raison, retires: null, reste: d.length, actif: false }); return; }
+    const avant = d.length;
+    d = d.filter(r => !aRetirer(r));
+    journal.push({ etape: raison, retires: avant - d.length, reste: d.length, actif: true });
+  };
+  const vus = new Set();
+  etape(regles.doublons, r => { if (vus.has(r.empreinte)) return true; vus.add(r.empreinte); return false; }, "doublons (réponses identiques, horodatage exclu)");
+  etape(regles.mineurs, r => r.age < 18, "moins de 18 ans (hors cible)");
+  etape(regles.jamais, r => r.frequence_sport === "Jamais", "ne regardent « Jamais » de sport");
+  etape(regles.attention, r => ATTENTION_RATEE.includes(r.piege_attention), "contrôle d'attention raté (autre réponse que « Souvent »)");
+  etape(true, r => !(VW.every(c => Number.isFinite(r[c])) && VW.slice(1).every((c, i) => r[c] - r[VW[i]] >= 0)), "Van Westendorp : seuils qui ne montent pas");
+  etape(true, r => PRIX_GG.some((p, i) => i > 0 && r["gg_" + String(p).replace(".", "_")] === "Oui" && r["gg_" + String(PRIX_GG[i - 1]).replace(".", "_")] === "Non"),
+        "Gabor-Granger : accepte un prix plus haut qu'un prix refusé");
+  return { d, journal };
+}
+
+// ======================================================================================
+// LES GRAPHIQUES (SVG, survol au pointeur et au clavier)
+// ======================================================================================
+const NS = "http://www.w3.org/2000/svg";
+function el(nom, attrs = {}, parent) {
+  const e = document.createElementNS(NS, nom);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function bulle(conteneur, x, y, titre, lignes) {
+  let b = conteneur.querySelector(".bulle");
+  if (!b) { b = document.createElement("div"); b.className = "bulle"; conteneur.appendChild(b); }
+  b.replaceChildren();
+  const t = document.createElement("b"); t.textContent = titre; b.appendChild(t);
+  lignes.forEach(([valeur, nom, couleur, tiret]) => {
+    const l = document.createElement("div");
+    const k = document.createElementNS(NS, "svg"); k.setAttribute("width", "16"); k.setAttribute("height", "6");
+    el("line", { x1: 0, y1: 3, x2: 16, y2: 3, stroke: couleur, "stroke-width": 2, "stroke-dasharray": tiret ? "4 3" : "" }, k);
+    const v = document.createElement("b"); v.textContent = valeur;
+    const n = document.createElement("span"); n.textContent = nom;
+    l.append(k, v, n); b.appendChild(l);
+  });
+  b.style.display = "block";
+  const w = conteneur.clientWidth, bw = b.offsetWidth;
+  b.style.left = Math.min(Math.max(0, x + 12), w - bw) + "px";
+  b.style.top = Math.max(0, y - 10) + "px";
+}
+const cacherBulle = c => { const b = c.querySelector(".bulle"); if (b) b.style.display = "none"; };
+const couleur = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+function graphiqueVW(conteneur, c, pts) {
+  conteneur.replaceChildren();
+  const W = 920, H = 380, m = { g: 44, d: 16, h: 70, b: 36 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Courbes de Van Westendorp" }, conteneur);
+  const xmax = c.prix[c.prix.length - 1] || 1;
+  const X = p => m.g + (W - m.g - m.d) * p / xmax, Y = v => H - m.b - (H - m.h - m.b) * v;
+  // grille et axes
+  [0, 0.25, 0.5, 0.75, 1].forEach(v => {
+    el("line", { x1: m.g, x2: W - m.d, y1: Y(v), y2: Y(v), stroke: couleur("--grid"), "stroke-width": 1 }, svg);
+    el("text", { x: m.g - 6, y: Y(v) + 4, "text-anchor": "end" }, svg).textContent = `${v * 100} %`;
+  });
+  const pas = xmax > 60 ? 20 : xmax > 30 ? 10 : 5;
+  for (let p = 0; p <= xmax; p += pas) el("text", { x: X(p), y: H - m.b + 16, "text-anchor": "middle" }, svg).textContent = `${p} €`;
+  el("line", { x1: m.g, x2: W - m.d, y1: Y(0), y2: Y(0), stroke: couleur("--axis"), "stroke-width": 1 }, svg);
+  // zone acceptable
+  if (Number.isFinite(pts.PMC) && Number.isFinite(pts.PME))
+    el("rect", { x: X(pts.PMC), y: Y(1), width: Math.max(0, X(pts.PME) - X(pts.PMC)), height: Y(0) - Y(1), fill: couleur("--zone") }, svg);
+  // les 4 points, étiquettes sur 4 rangs pour ne jamais se chevaucher
+  ["PMC", "OPP", "IPP", "PME"].forEach((k, i) => {
+    if (!Number.isFinite(pts[k])) return;
+    el("line", { x1: X(pts[k]), x2: X(pts[k]), y1: Y(1) - 4 - (3 - i) * 14, y2: Y(0), stroke: couleur("--axis"), "stroke-width": 1 }, svg);
+    const t = el("text", { x: X(pts[k]) + 4, y: Y(1) - 8 - (3 - i) * 14, class: "lab-ink" }, svg);
+    t.textContent = `${k} ${nb(pts[k], 1)} €`;
+  });
+  el("line", { x1: X(PRIX_ENVISAGE), x2: X(PRIX_ENVISAGE), y1: Y(1), y2: Y(0), stroke: couleur("--ink2"), "stroke-width": 1.5, "stroke-dasharray": "2 3" }, svg);
+  // les courbes
+  const series = [
+    ["trop_bon_marche", "trop bon marché", "--s1", true], ["bon_marche", "bon marché", "--s1", false],
+    ["cher", "cher", "--s2", false], ["trop_cher", "trop cher", "--s2", true],
+  ];
+  series.forEach(([k, , coul, tiret]) => {
+    const dpath = c.prix.map((p, i) => `${i ? "L" : "M"}${X(p).toFixed(1)},${Y(c[k][i]).toFixed(1)}`).join("");
+    el("path", { d: dpath, fill: "none", stroke: couleur(coul), "stroke-width": 2, "stroke-linejoin": "round", "stroke-dasharray": tiret ? "6 4" : "" }, svg);
+  });
+  // survol : la ligne verticale trouve le prix le plus proche
+  const croix = el("line", { y1: Y(1), y2: Y(0), stroke: couleur("--ink2"), "stroke-width": 1, visibility: "hidden" }, svg);
+  const zone = el("rect", { x: m.g, y: Y(1), width: W - m.g - m.d, height: Y(0) - Y(1), fill: "transparent", tabindex: 0 }, svg);
+  const montrer = i => {
+    const p = c.prix[i];
+    croix.setAttribute("x1", X(p)); croix.setAttribute("x2", X(p)); croix.setAttribute("visibility", "visible");
+    const r = svg.getBoundingClientRect(), k = r.width / W;
+    bulle(conteneur, X(p) * k, Y(1) * k, `à ${euros(p)}`,
+      series.map(([s, nom, coul, tiret]) => [pct(c[s][i]), nom, couleur(coul), tiret]));
+  };
+  let courant = 0;
+  zone.addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width;
+    const p = (x - m.g) / (W - m.g - m.d) * xmax;
+    courant = Math.max(0, Math.min(c.prix.length - 1, Math.round(p / xmax * (c.prix.length - 1))));
+    montrer(courant);
+  });
+  zone.addEventListener("keydown", ev => {
+    if (ev.key === "ArrowRight") courant = Math.min(c.prix.length - 1, courant + 5);
+    else if (ev.key === "ArrowLeft") courant = Math.max(0, courant - 5); else return;
+    ev.preventDefault(); montrer(courant);
+  });
+  const fin = () => { croix.setAttribute("visibility", "hidden"); cacherBulle(conteneur); };
+  zone.addEventListener("pointerleave", fin); zone.addEventListener("blur", fin);
+  const lg = document.createElement("div"); lg.className = "legende";
+  series.forEach(([, nom, coul, tiret]) => {
+    const s = document.createElement("span");
+    const k = document.createElementNS(NS, "svg"); k.setAttribute("width", "22"); k.setAttribute("height", "6");
+    el("line", { x1: 0, y1: 3, x2: 22, y2: 3, stroke: couleur(coul), "stroke-width": 2, "stroke-dasharray": tiret ? "6 4" : "" }, k);
+    s.append(k, document.createTextNode(nom)); lg.appendChild(s);
+  });
+  const s = document.createElement("span"); s.textContent = `pointillé gris : prix envisagé ${euros(PRIX_ENVISAGE)} · bande bleutée : zone acceptable`;
+  lg.appendChild(s);
+  conteneur.appendChild(lg);
+}
+
+function graphiqueMarge(conteneur, prix, series) {            // une ligne par hypothèse de coût
+  conteneur.replaceChildren();
+  const W = 920, H = 300, m = { g: 52, d: 90, h: 16, b: 36 };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Marge hors taxes par répondant selon le prix" }, conteneur);
+  const toutes = series.flatMap(s => s.valeurs);
+  const ymin = Math.min(0, ...toutes), ymax = Math.max(...toutes) * 1.1 || 1;
+  const xmin = prix[0], xmax = prix[prix.length - 1];
+  const X = p => m.g + (W - m.g - m.d) * (p - xmin) / (xmax - xmin), Y = v => H - m.b - (H - m.h - m.b) * (v - ymin) / (ymax - ymin);
+  const pasY = ymax > 4 ? 1 : 0.5;
+  for (let v = Math.ceil(ymin / pasY) * pasY; v <= ymax; v += pasY) {
+    el("line", { x1: m.g, x2: W - m.d, y1: Y(v), y2: Y(v), stroke: couleur(v === 0 ? "--axis" : "--grid"), "stroke-width": 1 }, svg);
+    el("text", { x: m.g - 6, y: Y(v) + 4, "text-anchor": "end" }, svg).textContent = euros(v);
+  }
+  prix.forEach(p => (el("text", { x: X(p), y: H - m.b + 16, "text-anchor": "middle" }, svg).textContent = euros(p)));
+  series.forEach(s => {
+    el("path", { d: prix.map((p, i) => `${i ? "L" : "M"}${X(p)},${Y(s.valeurs[i])}`).join(""), fill: "none", stroke: couleur(s.coul), "stroke-width": 2 }, svg);
+    prix.forEach((p, i) => el("circle", { cx: X(p), cy: Y(s.valeurs[i]), r: 4, fill: couleur(s.coul), stroke: couleur("--surface"), "stroke-width": 2 }, svg));
+    const i = s.valeurs.indexOf(Math.max(...s.valeurs));
+    el("circle", { cx: X(prix[i]), cy: Y(s.valeurs[i]), r: 7, fill: "none", stroke: couleur(s.coul), "stroke-width": 2 }, svg);
+  });
+  // étiquettes en bout de courbe, écartées d'au moins 14 px pour ne pas se chevaucher
+  const fins = series.map(s => ({ nom: s.nom, y: Y(s.valeurs[s.valeurs.length - 1]) })).sort((a, b) => a.y - b.y);
+  fins.forEach((f, i) => { if (i && f.y - fins[i - 1].y < 14) f.y = fins[i - 1].y + 14; });
+  fins.forEach(f => (el("text", { x: X(xmax) + 8, y: f.y + 4, class: "lab-ink" }, svg).textContent = f.nom));
+  const croix = el("line", { y1: Y(ymax), y2: Y(ymin), stroke: couleur("--ink2"), "stroke-width": 1, visibility: "hidden" }, svg);
+  const zone = el("rect", { x: m.g, y: m.h, width: W - m.g - m.d, height: H - m.h - m.b, fill: "transparent", tabindex: 0 }, svg);
+  let courant = 0;
+  const montrer = i => {
+    croix.setAttribute("x1", X(prix[i])); croix.setAttribute("x2", X(prix[i])); croix.setAttribute("visibility", "visible");
+    const r = svg.getBoundingClientRect(), k = r.width / W;
+    bulle(conteneur, X(prix[i]) * k, m.h * k, `à ${euros(prix[i])} TTC`, series.map(s => [euros(s.valeurs[i]), `coût ${s.nom}`, couleur(s.coul), false]));
+  };
+  zone.addEventListener("pointermove", ev => {
+    const r = svg.getBoundingClientRect(), x = (ev.clientX - r.left) * W / r.width;
+    courant = prix.reduce((best, p, i) => (Math.abs(X(p) - x) < Math.abs(X(prix[best]) - x) ? i : best), 0);
+    montrer(courant);
+  });
+  zone.addEventListener("keydown", ev => {
+    if (ev.key === "ArrowRight") courant = Math.min(prix.length - 1, courant + 1);
+    else if (ev.key === "ArrowLeft") courant = Math.max(0, courant - 1); else return;
+    ev.preventDefault(); montrer(courant);
+  });
+  const fin = () => { croix.setAttribute("visibility", "hidden"); cacherBulle(conteneur); };
+  zone.addEventListener("pointerleave", fin); zone.addEventListener("blur", fin);
+  const lg = document.createElement("div"); lg.className = "legende";
+  series.forEach(s => {
+    const sp = document.createElement("span");
+    const k = document.createElementNS(NS, "svg"); k.setAttribute("width", "22"); k.setAttribute("height", "6");
+    el("line", { x1: 0, y1: 3, x2: 22, y2: 3, stroke: couleur(s.coul), "stroke-width": 2 }, k);
+    sp.append(k, document.createTextNode(`coût ${s.nom} (${euros(s.cout)} HT)`)); lg.appendChild(sp);
+  });
+  const sp = document.createElement("span"); sp.textContent = "cercle : marge maximale"; lg.appendChild(sp);
+  conteneur.appendChild(lg);
+}
+
+// ======================================================================================
+// L'AFFICHAGE
+// ======================================================================================
+const $ = id => document.getElementById(id);
+const parVersion = (d, v) => d.filter(r => r.version === v);
+const badge = (sig, oui = "significatif", non = "non significatif", co = "sig", cn = "") => `<span class="badge ${sig ? co : cn}">${sig ? oui : non}</span>`;
+
+function afficher() {
+  if (!BRUT) return;
+  const regles = { doublons: $("r_doublons").checked, mineurs: $("r_mineurs").checked, jamais: $("r_jamais").checked, attention: $("r_attention").checked };
+  const { d, journal } = nettoyer(BRUT, regles);
+  const [A, B] = Object.keys(VERSIONS), [va, vb] = Object.values(VERSIONS);
+  const dA = parVersion(d, A), dB = parVersion(d, B);
+  $("contenu").classList.remove("cache");
+  if (dA.length < 2 || dB.length < 2) {
+    $("tuiles").innerHTML = `<div class="alerte">Trop peu de réponses dans une des versions pour calculer quoi que ce soit (${dA.length} et ${dB.length}).</div>`;
+    return;
+  }
+
+  // ---- les tests -------------------------------------------------------------------
+  const tests = VD.map(v => {
+    if (v.nature === "quanti") return { ...v, r: welch(dA.map(r => r[v.col]), dB.map(r => r[v.col])) };
+    const ct = tableauCroise(d, [A, B], v.col);
+    const r = chi2(ct.tab, false);
+    const oui = ct.cats.indexOf("Oui");
+    const parts = ct.tab.map(l => (oui < 0 ? 0 : l[oui] / l.reduce((s, x) => s + x, 0)));
+    return { ...v, r, ct, parts };
+  });
+  const nbSig = tests.filter(t => t.r && t.r.p < SEUIL).length;
+  const c = courbesVW(d), pts = pointsVW(c);
+  const dansZone = pts.PMC <= PRIX_ENVISAGE && PRIX_ENVISAGE <= pts.PME;
+  const taux = PRIX_GG.map(p => d.filter(r => r["gg_" + String(p).replace(".", "_")] === "Oui").length / d.length);
+  const couts = COUTS.map((h, i) => ({ ...h, cout: Number($("cout_" + i)?.value ?? h.cout) }));
+  const marges = couts.map(h => PRIX_GG.map((p, i) => (p / (1 + TVA) - h.cout) * taux[i]));
+  const iMax = arr => arr.indexOf(Math.max(...arr));
+  const centrale = marges[1], iC = iMax(centrale);
+
+  $("tuiles").innerHTML = [
+    ["Réponses analysées", d.length, `sur ${BRUT.length} reçues · ${dA.length} ${va} / ${dB.length} ${vb}`],
+    ["Test A/B", `${nbSig} / ${tests.length}`, "variables significatives"],
+    ["Zone acceptable", `${nb(pts.PMC, 1)} – ${nb(pts.PME, 1)} €`, `Van Westendorp · OPP ${nb(pts.OPP, 1)} €`],
+    ["Marge max (HT)", euros(PRIX_GG[iC]), `coût central ${euros(couts[1].cout)} HT`],
+  ].map(([l, v, p]) => `<div class="tuile"><div class="lab">${l}</div><div class="val">${esc(v)}</div><div class="pied">${esc(p)}</div></div>`).join("");
+
+  // ---- 1. nettoyage ------------------------------------------------------------------------
+  const lj = journal.map(j => [esc(j.etape), j.actif ? (j.retires ? `− ${j.retires}` : (j.retires === 0 ? "0" : "")) : "règle désactivée", String(j.reste)]);
+  const comptes = (arr, col) => Object.entries(arr.reduce((o, r) => ((o[r[col]] = (o[r[col]] || 0) + 1), o), {})).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${esc(k)} ${v}`).join(", ");
+  const profil = [[A, dA], [B, dB]].map(([v, s]) => {
+    const ages = s.map(r => r.age).filter(Number.isFinite);
+    return [esc(VERSIONS[v]), String(s.length), `${nb(moyenne(ages), 1)} ans (de ${Math.min(...ages)} à ${Math.max(...ages)})`, comptes(s, "genre"), comptes(s, "situation")];
+  });
+  const zeros = d.filter(r => r.vw_trop_bas === 0).length;
+  $("s_nettoyage").innerHTML = `<h2>1. Nettoyage et échantillon</h2>
+    ${tableau(["Étape", "Retirés", "Restent"], lj, "num", journal.map(j => (j.actif ? "" : "off")))}
+    <p><strong>${BRUT.length} réponses reçues, ${d.length} analysées</strong> : ${dA.length} en version ${va}, ${dB.length} en version ${vb}.</p>
+    <h3>Qui a répondu</h3>
+    ${tableau(["Version", "n", "Âge moyen", "Genre", "Situation"], profil)}
+    <p class="note">Réponses de prix à signaler (CM 2 : elles se signalent, elles ne s'effacent pas) : ${zeros} répondant(s) donnent 0 € comme seuil
+    « trop bon marché » ; le seuil « trop cher » le plus haut est ${euros(Math.max(...d.map(r => r.vw_trop_cher)))}.</p>`;
+
+  // ---- 2. manipulation ----------------------------------------------------------------------
+  $("s_manip").innerHTML = `<h2>2. Contrôle de manipulation</h2>
+    <p class="alerte"><strong>Pas de question de contrôle de manipulation dans le questionnaire.</strong>
+    On est dans la ligne « manipulation non vérifiée » du tableau du CM 3 : ${nbSig === 0
+      ? "test A/B non significatif, donc « le test n'a rien testé : on ne conclut rien sur l'effet de la variation, et on l'écrit comme une limite »."
+      : "test A/B significatif, donc « un effet, sans que la différence ait été nettement perçue […] Prudence »."}</p>`;
+
+  // ---- 3. tirage au sort ------------------------------------------------------------------
+  const lt = [];
+  const wa = welch(dA.map(r => r.age).filter(Number.isFinite), dB.map(r => r.age).filter(Number.isFinite));
+  lt.push(["Âge (années)", "Welch", `${nb(wa.ma, 1)} contre ${nb(wa.mb, 1)}`, pTxt(wa.p), badge(wa.p < SEUIL, "déséquilibré", "équilibré", "ko", "ok")]);
+  [["genre", "Genre"], ["frequence", "Fréquence de sport regardé"]].forEach(([col, lib]) => {
+    const r = chi2(tableauCroise(d, [A, B], col).tab, true);
+    if (!r) { lt.push([lib, "chi²", "test impossible (une seule modalité)", "", ""]); return; }
+    lt.push([lib, "chi²", `chi² = ${nb(r.khi)}, ${r.ddl} ddl${r.petit ? " (effectifs attendus < 5 dans certaines cases)" : ""}`, pTxt(r.p), badge(r.p < SEUIL, "déséquilibré", "équilibré", "ko", "ok")]);
+  });
+  $("s_tirage").innerHTML = `<h2>3. Le tirage au sort a-t-il fonctionné ?</h2>
+    ${tableau(["Profil", "Test", `${va} contre ${vb}`, "p", "Lecture"], lt)}`;
+
+  // ---- 4. test A/B ----------------------------------------------------------------------------
+  const cartes = tests.map(t => {
+    if (!t.r) return `<div class="carte"><h3>${esc(t.lib)}</h3><p class="note">Test impossible avec ces réponses (une seule modalité).</p></div>`;
+    const sig = t.r.p < SEUIL;
+    if (t.nature === "quanti") {
+      return `<div class="carte"><h3>${esc(t.lib)} ${badge(sig)}</h3>
+        <p class="test">Welch : t = ${nb(t.r.t)}, ${pTxt(t.r.p)}, d de Cohen = ${nb(t.r.d)} (${qualif(t.r.d)})</p>
+        <p>${nb(t.r.ma)} en version ${va} (n = ${t.r.na}) contre ${nb(t.r.mb)} en version ${vb} (n = ${t.r.nb}). ${sig ? "La différence est significative." : "La différence n'est pas significative."}</p></div>`;
+    }
+    const lignes = [A, B].map((v, i) => [esc(VERSIONS[v]), ...t.ct.tab[i].map(String)]);
+    return `<div class="carte"><h3>${esc(t.lib)} ${badge(sig)}</h3>
+      <p class="test">chi² = ${nb(t.r.khi)}, ${t.r.ddl} ddl, ${pTxt(t.r.p)}, V de Cramer = ${nb(t.r.v)} (${qualif(t.r.v, [0.1, 0.3, 0.5])})${t.r.petit ? " · attention : effectifs attendus < 5, chi² peu fiable" : ""}</p>
+      <p>${pct(t.parts[0])} en version ${va} contre ${pct(t.parts[1])} en version ${vb}. ${sig ? "Le lien est significatif." : "Le lien n'est pas significatif."}</p>
+      ${tableau(["", ...t.ct.cats.map(esc)], lignes, "num")}</div>`;
+  }).join("");
+  const pm = puissance(dA.length, dB.length, 0.5), pp = puissance(dA.length, dB.length, 0.2);
+  $("s_ab").innerHTML = `<h2>4. Le test A/B : la marque Canal+ change-t-elle la réponse ?</h2>${cartes}
+    <h3>La puissance</h3>
+    <p>Avec ${dA.length} et ${dB.length} répondants, le test détecte un effet moyen (d = 0,5) <strong>${nb(pm * 100, 0)} fois sur 100</strong>,
+    et un petit effet (d = 0,2) ${nb(pp * 100, 0)} fois sur 100.${pm < 0.8 ? " Sous 80 %, un résultat non significatif ne prouve pas l'absence d'effet." : ""}</p>`;
+
+  // ---- 5. Van Westendorp -------------------------------------------------------------------
+  const vv = [[A, dA], [B, dB]].map(([v, s]) => {
+    const p2 = pointsVW(courbesVW(s, c.prix));
+    return [esc(VERSIONS[v]), String(s.length), `${euros(p2.PMC, 1)} à ${euros(p2.PME, 1)}`, euros(p2.OPP, 1), euros(p2.IPP, 1)];
+  });
+  $("s_vw").innerHTML = `<h2>5. Van Westendorp : la zone de prix acceptable</h2>
+    <div class="chart" id="g_vw"></div>
+    ${tableau(["Point", "Croisement", "Valeur"], [
+      ["PMC, point marginal de bon marché (bas de la zone)", "trop bon marché × cher", euros(pts.PMC, 1)],
+      ["OPP, prix optimal (le moins de rejets)", "trop bon marché × trop cher", euros(pts.OPP, 1)],
+      ["IPP, prix d'indifférence (perçu comme normal)", "bon marché × cher", euros(pts.IPP, 1)],
+      ["PME, point marginal de cherté (haut de la zone)", "bon marché × trop cher", euros(pts.PME, 1)]], "num")}
+    <p>Zone acceptable <strong>de ${euros(pts.PMC, 1)} à ${euros(pts.PME, 1)}</strong> : le prix envisagé de ${euros(PRIX_ENVISAGE)} est
+    <strong>${dansZone ? "dans la zone" : "hors de la zone"}</strong>. À arrondir à l'euro dans le dossier.</p>
+    <h3>Une zone par version (à comparer à l'œil, pas par un test)</h3>
+    ${tableau(["Version", "n", "Zone (PMC à PME)", "OPP", "IPP"], vv)}`;
+  graphiqueVW($("g_vw"), c, pts);
+
+  // ---- 6. Gabor-Granger ----------------------------------------------------------------------
+  const lgg = PRIX_GG.map((p, i) => {
+    const k = "gg_" + String(p).replace(".", "_");
+    const pa = dA.filter(r => r[k] === "Oui").length / dA.length, pb = dB.filter(r => r[k] === "Oui").length / dB.length;
+    return [euros(p), pct(taux[i]), pct(pa), pct(pb), euros(p * taux[i])];
+  });
+  const lm = PRIX_GG.map((p, i) => [euros(p), euros(p / (1 + TVA)), ...marges.map(m => euros(m[i]))]);
+  const classesMax = marges.map(m => iMax(m));
+  const synth = couts.map((h, j) => {
+    const m = marges[j], i = iMax(m);
+    const proches = PRIX_GG.filter((p, k) => m[k] >= 0.95 * m[i]).map(p => euros(p)).join(", ");
+    return [esc(h.nom), euros(h.cout), euros(h.cout * (1 + TVA)), `<strong>${euros(PRIX_GG[i])}</strong>`, euros(m[i]), pct(taux[i]), proches];
+  });
+  const champs = couts.map((h, i) => `<label>coût ${esc(h.nom)} <input type="number" id="cout_${i}" step="0.01" min="0" value="${h.cout}"> € HT</label>`).join("");
+  $("s_gg").innerHTML = `<h2>6. Gabor-Granger : le prix qui rapporte</h2>
+    ${tableau(["Prix proposé (TTC)", "Ensemble", va, vb, "CA TTC par répondant"], lgg, "num")}
+    <h3>La marge hors taxes, selon le coût variable par pass</h3>
+    <p class="note">Marge par répondant = (prix TTC / ${nb(1 + TVA)} − coût variable HT) × part qui achète. Les coûts sont modifiables ;
+    valeurs de départ sourcées dans le rapport (partie 7) : ${couts.map(h => `${esc(h.nom)} = ${esc(h.src)}`).join(" ; ")}.</p>
+    <div class="controls" style="margin:6px 0 10px">${champs}</div>
+    <div class="chart" id="g_marge"></div>
+    ${tableau(["Prix TTC", "Prix HT", ...couts.map(h => `Marge HT, coût ${esc(h.nom)}`)],
+      lm.map((l, i) => l.map((x, j) => (j >= 2 && classesMax[j - 2] === i ? `<strong>${x}</strong>` : x))), "num")}
+    ${tableau(["Hypothèse", "Coût HT", "Prix plancher TTC", "Prix de marge maximale", "Marge HT par répondant", "Part qui achète", "Prix à moins de 5 % du maximum"], synth, "num")}
+    <p class="note">Intention déclarée : la part réelle d'acheteurs sera plus basse (CM 3). Quand plusieurs prix sont à moins de 5 % du maximum,
+    les réponses ne les départagent pas : la décision se prend avec la zone Van Westendorp et le prix des concurrents (CM 1).</p>`;
+  graphiqueMarge($("g_marge"), PRIX_GG, couts.map((h, j) => ({ nom: h.nom, cout: h.cout, valeurs: marges[j], coul: ["--s1", "--s2", "--s3"][j] })));
+  couts.forEach((h, i) => $("cout_" + i).addEventListener("change", afficher));
+
+  // ---- 7. conclusion --------------------------------------------------------------------------
+  $("s_conclusion").innerHTML = `<h2>7. Ce que permettent de conclure ces réponses</h2><ul>
+    <li><strong>Échantillon :</strong> ${d.length} réponses analysées sur ${BRUT.length} reçues.</li>
+    <li><strong>Effet de la marque :</strong> ${nbSig === 0
+      ? "aucune variable ne diffère significativement. Sans contrôle de manipulation, on ne peut pas conclure que la marque est sans effet : à écrire comme une limite, avec la puissance du test."
+      : `${nbSig} variable(s) sur ${tests.length} diffère(nt) significativement ; sans contrôle de manipulation, prudence sur l'interprétation.`}</li>
+    <li><strong>Zone de prix acceptable :</strong> ${euros(pts.PMC, 1)} à ${euros(pts.PME, 1)}, prix envisagé ${dansZone ? "dans" : "hors de"} la zone.</li>
+    <li><strong>Prix de marge maximale (HT) :</strong> ${couts.map((h, j) => `${euros(PRIX_GG[iMax(marges[j])])} avec le coût ${esc(h.nom)}`).join(" ; ")}.</li>
+    <li><strong>À ajouter (CM 1) :</strong> le plafond fixé par les prix des concurrents, relevés datés et sourcés.</li></ul>`;
+}
+
+// ======================================================================================
+// CHARGEMENT : lien du Sheet (mémorisé dans ce navigateur), ou fichier choisi
+// ======================================================================================
+function etat(t) { $("etat").textContent = t; }
+function lire(nomSource, texte) {
+  try {
+    BRUT = preparer(texte);
+    SOURCE = nomSource;
+    etat(`${BRUT.length} réponses lues · ${nomSource} · ${new Date().toLocaleString("fr-FR")}`);
+    afficher();
+  } catch (e) { etat(`Lecture impossible : ${e.message}`); }
+}
+async function chargerLien(lien) {
+  etat("Chargement des réponses…");
+  try {
+    const r = await fetch(lien, { cache: "no-store" });
+    if (!r.ok) throw new Error(`le serveur répond ${r.status}`);
+    const texte = await r.text();
+    if (texte.trimStart().startsWith("<")) throw new Error("le lien renvoie une page web, pas un CSV : à la publication, choisissez le format « .csv »");
+    lire("Google Sheet", texte);
+  } catch (e) {
+    if (location.protocol === "file:")              // Google refuse les pages ouvertes depuis l'ordinateur (origine « null »)
+      etat("Google bloque la lecture du Sheet quand cette page est ouverte comme un fichier depuis l'ordinateur. "
+         + "Utilisez la version en ligne de la page, ou téléchargez le CSV du Sheet et choisissez-le avec « Ou choisir un fichier CSV ».");
+    else etat(`Impossible de lire le lien (${e.message}). Vérifiez qu'il finit par output=csv, ou choisissez le fichier CSV à la main.`);
+  }
+}
+$("charger").addEventListener("click", () => {
+  const lien = $("lien").value.trim();
+  if (!lien) { etat("Collez d'abord le lien CSV du Google Sheet."); return; }
+  try { localStorage.setItem(CLE_LIEN, lien); } catch (e) { /* stockage indisponible : le lien n'est pas mémorisé */ }
+  chargerLien(lien);
+});
+$("fichier").addEventListener("change", ev => {
+  const f = ev.target.files[0];
+  if (!f) return;
+  const lecteur = new FileReader();
+  lecteur.onload = () => lire(`fichier « ${f.name} »`, lecteur.result);
+  lecteur.readAsText(f, "utf-8");
+});
+["r_doublons", "r_mineurs", "r_jamais", "r_attention"].forEach(id => $(id).addEventListener("change", afficher));
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", afficher);
+
+// au démarrage : ?source=… dans l'adresse, sinon le lien mémorisé dans ce navigateur
+(function demarrer() {
+  if (typeof Papa === "undefined" || typeof jStat === "undefined") {
+    etat("Les bibliothèques de calcul ne se sont pas chargées : il faut une connexion internet."); return;
+  }
+  const param = new URLSearchParams(location.search).get("source");
+  let lien = param;
+  if (!lien) { try { lien = localStorage.getItem(CLE_LIEN); } catch (e) { lien = null; } }
+  if (lien) { $("lien").value = param ? "" : lien; chargerLien(lien); }
+  // les réponses arrivent pendant la collecte : on relit le Sheet toutes les 10 minutes si la page reste ouverte
+  setInterval(() => { const l = param || $("lien").value.trim(); if (l && BRUT && SOURCE === "Google Sheet") chargerLien(l); }, 10 * 60 * 1000);
+})();
+</script>
+</body>
+</html>
