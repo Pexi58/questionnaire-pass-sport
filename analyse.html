@@ -14,21 +14,21 @@
 :root {
   color-scheme: light;
   --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781; --grid:#e1e0d9; --axis:#c3c2b7;
-  --ring:rgba(11,11,11,0.10); --accent:#2a78d6; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --zone:rgba(42,120,214,0.10);
+  --ring:rgba(11,11,11,0.10); --accent:#2a78d6; --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --zone:rgba(42,120,214,0.10); --zone2:rgba(42,120,214,0.30);
   --warnbg:#fdf3e1; --warnink:#7a4f00; --okbg:#e6f4ec; --okink:#006300;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
     --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781; --grid:#2c2c2a; --axis:#383835;
-    --ring:rgba(255,255,255,0.10); --accent:#3987e5; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --zone:rgba(57,135,229,0.14);
+    --ring:rgba(255,255,255,0.10); --accent:#3987e5; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --zone:rgba(57,135,229,0.14); --zone2:rgba(57,135,229,0.38);
     --warnbg:#3a2e14; --warnink:#f0c46b; --okbg:#173325; --okink:#7fd3a0;
   }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
   --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781; --grid:#2c2c2a; --axis:#383835;
-  --ring:rgba(255,255,255,0.10); --accent:#3987e5; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --zone:rgba(57,135,229,0.14);
+  --ring:rgba(255,255,255,0.10); --accent:#3987e5; --s1:#3987e5; --s2:#d95926; --s3:#199e70; --zone:rgba(57,135,229,0.14); --zone2:rgba(57,135,229,0.38);
   --warnbg:#3a2e14; --warnink:#f0c46b; --okbg:#173325; --okink:#7fd3a0;
 }
 * { box-sizing:border-box; }
@@ -137,9 +137,6 @@ const COUTS = [                                               // € HT par pass
 ];
 const VD = [                                                  // variables dépendantes du test A/B
   { col: "intention_achat", lib: "Prêt(e) à acheter ce pass (Q5)", nature: "binaire" },
-  { col: "vw_trop_cher", lib: "Seuil « trop cher » (Van Westendorp, Q6d)", nature: "quanti" },
-  { col: "gabor_granger_max_accepte", lib: "Prix maximum accepté (Gabor-Granger, Q7 ; 0 = refus dès 3,99 €)", nature: "quanti" },
-  { col: "gg_5_99", lib: "Achèterait au prix envisagé de 5,99 € (Gabor-Granger)", nature: "binaire" },
 ];
 const CLE_LIEN = "pass1match_lien_csv";
 
@@ -356,6 +353,11 @@ function graphiqueVW(conteneur, c, pts) {
   // zone acceptable
   if (Number.isFinite(pts.PMC) && Number.isFinite(pts.PME))
     el("rect", { x: X(pts.PMC), y: Y(1), width: Math.max(0, X(pts.PME) - X(pts.PMC)), height: Y(0) - Y(1), fill: couleur("--zone") }, svg);
+  // zone optimale, entre l'OPP et l'IPP
+  if (Number.isFinite(pts.OPP) && Number.isFinite(pts.IPP)) {
+    const bas = Math.min(pts.OPP, pts.IPP), haut = Math.max(pts.OPP, pts.IPP);
+    el("rect", { x: X(bas), y: Y(1), width: Math.max(0, X(haut) - X(bas)), height: Y(0) - Y(1), fill: couleur("--zone2") }, svg);
+  }
   // les 4 points, étiquettes sur 4 rangs pour ne jamais se chevaucher
   ["PMC", "OPP", "IPP", "PME"].forEach((k, i) => {
     if (!Number.isFinite(pts[k])) return;
@@ -404,7 +406,7 @@ function graphiqueVW(conteneur, c, pts) {
     el("line", { x1: 0, y1: 3, x2: 22, y2: 3, stroke: couleur(coul), "stroke-width": 2, "stroke-dasharray": tiret ? "6 4" : "" }, k);
     s.append(k, document.createTextNode(nom)); lg.appendChild(s);
   });
-  const s = document.createElement("span"); s.textContent = `pointillé gris : prix envisagé ${euros(PRIX_ENVISAGE)} · bande bleutée : zone acceptable`;
+  const s = document.createElement("span"); s.textContent = `pointillé gris : prix envisagé ${euros(PRIX_ENVISAGE)} · bande foncée : zone optimale (OPP à IPP) · bande claire : zone acceptable (PMC à PME)`;
   lg.appendChild(s);
   conteneur.appendChild(lg);
 }
@@ -495,6 +497,8 @@ function afficher() {
   const nbSig = tests.filter(t => t.r && t.r.p < SEUIL).length;
   const c = courbesVW(d), pts = pointsVW(c);
   const dansZone = pts.PMC <= PRIX_ENVISAGE && PRIX_ENVISAGE <= pts.PME;
+  const zoneOpt = [Math.min(pts.OPP, pts.IPP), Math.max(pts.OPP, pts.IPP)];       // zone optimale : entre l'OPP et l'IPP
+  const posOpt = PRIX_ENVISAGE < zoneOpt[0] ? "en dessous de la zone optimale" : PRIX_ENVISAGE > zoneOpt[1] ? "au-dessus de la zone optimale" : "dans la zone optimale";
   const taux = PRIX_GG.map(p => d.filter(r => r["gg_" + String(p).replace(".", "_")] === "Oui").length / d.length);
   const couts = COUTS.map((h, i) => ({ ...h, cout: Number($("cout_" + i)?.value ?? h.cout) }));
   const marges = couts.map(h => PRIX_GG.map((p, i) => (p / (1 + TVA) - h.cout) * taux[i]));
@@ -503,8 +507,9 @@ function afficher() {
 
   $("tuiles").innerHTML = [
     ["Réponses analysées", d.length, `sur ${BRUT.length} reçues · ${dA.length} ${va} / ${dB.length} ${vb}`],
-    ["Test A/B", `${nbSig} / ${tests.length}`, "variables significatives"],
-    ["Zone acceptable", `${nb(pts.PMC, 1)} – ${nb(pts.PME, 1)} €`, `Van Westendorp · OPP ${nb(pts.OPP, 1)} €`],
+    ["Prêts à acheter (Q5)", tests[0].r ? `${pct(tests[0].parts[0])} / ${pct(tests[0].parts[1])}` : "—",
+     tests[0].r ? `${va} / ${vb} · ${pTxt(tests[0].r.p)} · ${tests[0].r.p < SEUIL ? "significatif" : "non significatif"}` : "test impossible"],
+    ["Zone optimale (OPP – IPP)", `${nb(zoneOpt[0], 1)} – ${nb(zoneOpt[1], 1)} €`, `zone acceptable (PMC – PME) : ${nb(pts.PMC, 1)} – ${nb(pts.PME, 1)} €`],
     ["Marge max (HT)", euros(PRIX_GG[iC]), `coût central ${euros(couts[1].cout)} HT`],
   ].map(([l, v, p]) => `<div class="tuile"><div class="lab">${l}</div><div class="val">${esc(v)}</div><div class="pied">${esc(p)}</div></div>`).join("");
 
@@ -567,19 +572,23 @@ function afficher() {
   // ---- 5. Van Westendorp -------------------------------------------------------------------
   const vv = [[A, dA], [B, dB]].map(([v, s]) => {
     const p2 = pointsVW(courbesVW(s, c.prix));
-    return [esc(VERSIONS[v]), String(s.length), `${euros(p2.PMC, 1)} à ${euros(p2.PME, 1)}`, euros(p2.OPP, 1), euros(p2.IPP, 1)];
+    return [esc(VERSIONS[v]), String(s.length), `${euros(Math.min(p2.OPP, p2.IPP), 1)} à ${euros(Math.max(p2.OPP, p2.IPP), 1)}`,
+            `${euros(p2.PMC, 1)} à ${euros(p2.PME, 1)}`, euros(p2.OPP, 1), euros(p2.IPP, 1)];
   });
-  $("s_vw").innerHTML = `<h2>5. Van Westendorp : la zone de prix acceptable</h2>
+  $("s_vw").innerHTML = `<h2>5. Van Westendorp : la zone de prix optimale</h2>
     <div class="chart" id="g_vw"></div>
     ${tableau(["Point", "Croisement", "Valeur"], [
       ["PMC, point marginal de bon marché (bas de la zone)", "trop bon marché × cher", euros(pts.PMC, 1)],
       ["OPP, prix optimal (le moins de rejets)", "trop bon marché × trop cher", euros(pts.OPP, 1)],
       ["IPP, prix d'indifférence (perçu comme normal)", "bon marché × cher", euros(pts.IPP, 1)],
       ["PME, point marginal de cherté (haut de la zone)", "bon marché × trop cher", euros(pts.PME, 1)]], "num")}
-    <p>Zone acceptable <strong>de ${euros(pts.PMC, 1)} à ${euros(pts.PME, 1)}</strong> : le prix envisagé de ${euros(PRIX_ENVISAGE)} est
-    <strong>${dansZone ? "dans la zone" : "hors de la zone"}</strong>. À arrondir à l'euro dans le dossier.</p>
+    <p>Zone optimale, entre l'OPP et l'IPP : <strong>de ${euros(zoneOpt[0], 1)} à ${euros(zoneOpt[1], 1)}</strong>. Le prix envisagé de
+    ${euros(PRIX_ENVISAGE)} est <strong>${posOpt}</strong>. À arrondir à l'euro dans le dossier.</p>
+    <p class="note">Au-dessus de l'OPP, plus de répondants trouvent le pass trop cher que trop bon marché ; à l'IPP, autant le jugent bon marché
+    que cher. Le CM 3 appelle « zone de prix acceptable » l'intervalle plus large entre le PMC et le PME : ici de ${euros(pts.PMC, 1)}
+    à ${euros(pts.PME, 1)}, prix envisagé ${dansZone ? "dedans" : "dehors"}.</p>
     <h3>Une zone par version (à comparer à l'œil, pas par un test)</h3>
-    ${tableau(["Version", "n", "Zone (PMC à PME)", "OPP", "IPP"], vv)}`;
+    ${tableau(["Version", "n", "Zone optimale (OPP à IPP)", "Zone acceptable (PMC à PME)", "OPP", "IPP"], vv)}`;
   graphiqueVW($("g_vw"), c, pts);
 
   // ---- 6. Gabor-Granger ----------------------------------------------------------------------
@@ -615,9 +624,10 @@ function afficher() {
   $("s_conclusion").innerHTML = `<h2>7. Ce que permettent de conclure ces réponses</h2><ul>
     <li><strong>Échantillon :</strong> ${d.length} réponses analysées sur ${BRUT.length} reçues.</li>
     <li><strong>Effet de la marque :</strong> ${nbSig === 0
-      ? "aucune variable ne diffère significativement. Sans contrôle de manipulation, on ne peut pas conclure que la marque est sans effet : à écrire comme une limite, avec la puissance du test."
-      : `${nbSig} variable(s) sur ${tests.length} diffère(nt) significativement ; sans contrôle de manipulation, prudence sur l'interprétation.`}</li>
-    <li><strong>Zone de prix acceptable :</strong> ${euros(pts.PMC, 1)} à ${euros(pts.PME, 1)}, prix envisagé ${dansZone ? "dans" : "hors de"} la zone.</li>
+      ? "l'intention d'achat ne diffère pas significativement entre les deux versions. Sans contrôle de manipulation, on ne peut pas conclure que la marque est sans effet : à écrire comme une limite, avec la puissance du test."
+      : "l'intention d'achat diffère significativement entre les deux versions ; sans contrôle de manipulation, prudence sur l'interprétation (CM 3)."}</li>
+    <li><strong>Zone de prix optimale (OPP à IPP) :</strong> ${euros(zoneOpt[0], 1)} à ${euros(zoneOpt[1], 1)} ; prix envisagé de ${euros(PRIX_ENVISAGE)} ${posOpt}
+      (zone acceptable du cours, PMC à PME : ${euros(pts.PMC, 1)} à ${euros(pts.PME, 1)}).</li>
     <li><strong>Prix de marge maximale (HT) :</strong> ${couts.map((h, j) => `${euros(PRIX_GG[iMax(marges[j])])} avec le coût ${esc(h.nom)}`).join(" ; ")}.</li>
     <li><strong>À ajouter (CM 1) :</strong> le plafond fixé par les prix des concurrents, relevés datés et sourcés.</li></ul>`;
 }
