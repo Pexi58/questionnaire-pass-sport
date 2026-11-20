@@ -62,6 +62,10 @@ Chaque réponse est envoyée dans un Google Sheet, avec une ligne par répondant
 3. **Van Westendorp (Q6)** : tracer les quatre courbes pour chaque groupe et comparer les fourchettes de prix acceptables de A et de B.
 4. **Gabor-Granger (Q7)** : pour chaque prix, calculer la part de répondants qui l'acceptent, dans chaque groupe. On obtient une courbe de demande pour A et une pour B. Comparer aussi le prix maximum accepté (test de Mann-Whitney).
 
+## Le dossier en ligne
+
+**[analyse-strategique.html](https://pexi58.github.io/questionnaire-pass-sport/analyse-strategique.html)** est le dossier du groupe en cinq onglets : l'entreprise et l'offre, les concurrents (avec le mapping), le prix psychologique (questionnaire, courbes de Van Westendorp tracées dans la page à partir des 121 réponses nettoyées), le budget (tous les calculs) et la proposition (stress test, limites, usage de l'IA). Le texte suit le Google Docs du groupe. La maquette de l'offre est dans `images/`. [analyse.html](analyse.html) reste le tableau de bord interactif, qui lit le Google Sheet en direct.
+
 ## Mettre à jour le site
 
 1. Modifier `index.html`.

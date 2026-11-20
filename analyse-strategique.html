@@ -1,597 +1,1235 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canal+ | Stratégie Pass Match</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap');
-        
-        :root {
-            --bg-base: #000000;
-            --bg-panel: #121212;
-            --bg-panel-hover: #1a1a1a;
-            --text-main: #ffffff;
-            --text-muted: #999999;
-            --border-color: #333333;
-            --accent-red: #e50914; 
-            --accent-green: #1DB954; 
-            --canal-blue: #0056b3;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Pass Match CANAL+ : dossier Prix et budget</title>
+<meta name="description" content="Dossier du cours Prix et budgets marketing (IAE Clermont-Auvergne) : faut-il vendre un match de CANAL+ à l'unité, et à quel prix ?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ---------- Charte : même base que le questionnaire (noir, blanc, rouge CANAL+) ---------- */
+:root {
+  --bg: #000000;
+  --bg-panel: #121212;
+  --bg-panel-2: #1a1a1a;
+  --bg-inset: #0a0a0a;
+  --text: #ffffff;
+  --text-2: #c9c9c9;
+  --muted: #9a9a9a;
+  --border: #333333;
+  --border-soft: #262626;
+  --red: #e50000;
+  --red-soft: rgba(229, 0, 0, 0.14);
+  --green: #1db954;
+  --green-soft: rgba(29, 185, 84, 0.14);
+  --amber: #f5b335;
+  --amber-soft: rgba(245, 179, 53, 0.14);
+  --link: #4da6ff;
+  --link-hover: #99ccff;
+  --c-tbm: #a9d4ff;   /* courbe « trop bon marché » */
+  --c-bm: #4da6ff;    /* courbe « bon marché » */
+  --c-ch: #ff9f43;    /* courbe « cher » */
+  --c-tc: #ff5a5f;    /* courbe « trop cher » */
+  --zone: rgba(255, 255, 255, 0.07);
+  --zone-opt: rgba(255, 255, 255, 0.18);
+  --radius: 10px;
+  --wrap: 1120px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 15.5px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+}
+a { color: var(--link); text-decoration: none; }
+a:hover { color: var(--link-hover); text-decoration: underline; }
+a.src::after { content: "\2197"; font-size: 0.7em; margin-left: 2px; vertical-align: super; opacity: 0.8; }
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+/* ---------- Barre du haut + onglets ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .wrap { display: flex; align-items: center; gap: 24px; min-height: 60px; }
+.brand { display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
+.brand .logo { font-weight: 800; letter-spacing: 3px; font-size: 1.25rem; }
+.brand .logo span { color: var(--red); }
+.brand small { color: var(--muted); font-size: 0.78rem; letter-spacing: 1px; text-transform: uppercase; }
+.tabs { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  appearance: none; background: none; border: 0; color: var(--muted); cursor: pointer;
+  font: inherit; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase;
+  padding: 20px 10px 18px; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s;
+}
+.brand { flex: none; }
+@media (max-width: 1320px) { .brand small { display: none; } }
+.chart text.halo { paint-order: stroke; stroke: #121212; stroke-width: 4px; stroke-linejoin: round; }
+.tab .num { color: var(--red); margin-right: 6px; font-weight: 800; }
+.tab:hover { color: var(--text); }
+.tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--red); }
+.tab:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; border-radius: 4px; }
 
-        body { 
-            background-color: var(--bg-base); 
-            color: var(--text-main); 
-            font-family: 'Montserrat', sans-serif; 
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-        }
-        
-        /* Header */
-        header { 
-            padding: 80px 20px 60px; 
-            text-align: center; 
-            background: radial-gradient(circle at top, #222222 0%, #000000 80%);
-            border-bottom: 1px solid var(--border-color); 
-        }
-        
-        header h1 { 
-            font-size: 4rem; 
-            letter-spacing: 6px; 
-            text-transform: uppercase; 
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-        
-        header p { 
-            color: var(--text-muted); 
-            font-size: 1.2rem; 
-            font-weight: 300;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        /* Layout */
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 60px 20px; 
-        }
-        
-        section { 
-            margin-bottom: 80px; 
-        }
-        
-        /* Typography */
-        h2 { 
-            font-size: 2rem; 
-            font-weight: 600;
-            margin-bottom: 30px; 
-            text-transform: uppercase; 
-            letter-spacing: 2px;
-            display: flex;
-            align-items: center;
-        }
+/* ---------- En-tête ---------- */
+.hero { padding: 56px 0 36px; background: radial-gradient(ellipse at top, #1f1f1f 0%, #000 70%); border-bottom: 1px solid var(--border-soft); }
+.hero .kicker { color: var(--red); font-weight: 700; letter-spacing: 3px; text-transform: uppercase; font-size: 0.78rem; margin-bottom: 14px; }
+.hero h1 { font-size: clamp(1.7rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: 1px; text-transform: uppercase; line-height: 1.15; max-width: 900px; }
+.hero .sub { color: var(--text-2); font-weight: 300; font-size: 1.1rem; max-width: 820px; margin-top: 14px; }
+.hero .meta { color: var(--muted); font-size: 0.85rem; margin-top: 18px; }
 
-        h2::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background-color: var(--border-color);
-            margin-left: 20px;
-        }
-        
-        h3 { 
-            font-size: 1.3rem; 
-            color: var(--text-main); 
-            margin: 30px 0 15px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-left: 3px solid var(--text-main);
-            padding-left: 10px;
-        }
+/* ---------- Panneaux (onglets) ---------- */
+.panel { padding: 44px 0 56px; }
+.panel + .panel { border-top: 1px solid var(--border); }
+html.js .panel[hidden] { display: none; }
+.panel-head { margin-bottom: 28px; }
+.panel-head .step { color: var(--red); font-weight: 800; letter-spacing: 3px; text-transform: uppercase; font-size: 0.78rem; }
+.panel-head h2 { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 6px; }
+.panel-head .lead { color: var(--text-2); font-size: 1.05rem; margin-top: 12px; max-width: 860px; }
+h3 { font-size: 1.15rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 40px 0 14px; padding-left: 12px; border-left: 3px solid var(--red); }
+h4 { font-size: 1rem; font-weight: 700; margin: 22px 0 8px; }
+p { margin-bottom: 12px; }
+p:last-child, ul:last-child, ol:last-child { margin-bottom: 0; }
+ul, ol { padding-left: 22px; margin-bottom: 12px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--red); }
+strong { font-weight: 700; }
+.muted { color: var(--muted); }
+.small { font-size: 0.88rem; }
+.nowrap { white-space: nowrap; }
 
-        p {
-            margin-bottom: 15px;
-        }
+.notion { display: inline-block; font-size: 0.76rem; font-weight: 600; letter-spacing: 0.5px; color: var(--text-2); background: var(--bg-panel-2); border: 1px solid var(--border); border-radius: 99px; padding: 3px 11px; margin: 0 0 16px; }
+.notion b { color: var(--text); font-weight: 700; }
 
-        a {
-            color: #4da6ff;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
+/* ---------- Cartes, tuiles ---------- */
+.grid { display: grid; gap: 18px; margin: 18px 0; }
+.grid.c2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.grid.c3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; }
+.card h4 { margin-top: 0; text-transform: uppercase; letter-spacing: 1px; font-size: 0.92rem; padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+.card p, .card li { color: var(--text-2); font-size: 0.95rem; }
+.card .big { color: var(--text); font-size: 2rem; font-weight: 800; line-height: 1.1; margin-bottom: 6px; }
+.card.red { border-color: rgba(229, 0, 0, 0.6); }
+.card.red h4 { color: #ff5a5f; border-color: rgba(229, 0, 0, 0.4); }
+.card.green { border-color: rgba(29, 185, 84, 0.55); }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 18px 0; }
+.kpi { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 16px; text-align: center; }
+.kpi .v { font-size: 1.9rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.5px; }
+.kpi .v.loss { color: #ff5a5f; } .kpi .v.gain { color: var(--green); } .kpi .v.red { color: var(--red); }
+.kpi .l { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-top: 8px; }
+.kpi .f { color: var(--muted); font-size: 0.78rem; margin-top: 4px; }
 
-        a:hover {
-            color: #99ccff;
-            text-decoration: underline;
-        }
+/* « Lecture » = notre interprétation, pas un fait (convention du dossier) */
+.lecture { background: var(--bg-inset); border: 1px solid var(--border-soft); border-left: 3px solid var(--text); border-radius: 0 var(--radius) var(--radius) 0; padding: 16px 20px; margin: 18px 0; }
+.lecture::before { content: "Lecture"; display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.lecture p { color: var(--text-2); }
+.callout { background: linear-gradient(135deg, #1b1b1b 0%, #0b0b0b 100%); border: 1px solid #444; border-radius: var(--radius); padding: 26px 28px; margin: 22px 0; }
+.callout h4 { margin-top: 0; text-transform: uppercase; letter-spacing: 1px; }
+.callout.red { border-color: var(--red); background: linear-gradient(135deg, #1c0a0a 0%, #0b0b0b 100%); }
+.quote { font-size: 1.05rem; font-style: italic; color: var(--text-2); border-left: 3px solid var(--red); padding: 6px 0 6px 18px; margin: 18px 0; }
 
-        /* KPI Dashboards */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
+/* ---------- Tableaux ---------- */
+.tbl { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-panel); margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.92rem; }
+th, td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: rgba(255, 255, 255, 0.03); color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.74rem; letter-spacing: 1px; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover td { background: rgba(255, 255, 255, 0.02); }
+tr.total td { font-weight: 700; background: rgba(255, 255, 255, 0.03); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td .cell-note { display: block; color: var(--muted); font-size: 0.82rem; margin-top: 3px; }
+.price { font-weight: 700; white-space: nowrap; }
+.pos { color: var(--green); font-weight: 700; } .neg { color: #ff5a5f; font-weight: 700; } .zero { color: var(--amber); font-weight: 700; }
+.pill { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; border-radius: 99px; padding: 2px 9px; vertical-align: middle; }
+.pill.direct { background: var(--red-soft); color: #ff8a8a; } .pill.indirect { background: rgba(77, 166, 255, 0.14); color: #8fc6ff; } .pill.free { background: var(--green-soft); color: #6fe0a0; }
 
-        .kpi-card {
-            background-color: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            padding: 25px 15px;
-            border-radius: 8px;
-            text-align: center;
-            transition: transform 0.2s, background-color 0.2s;
-        }
+/* ---------- Image de l'offre ---------- */
+.figure { margin: 24px 0; }
+.figure img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+.figure figcaption { color: var(--muted); font-size: 0.84rem; margin-top: 10px; }
 
-        .kpi-card:hover {
-            background-color: var(--bg-panel-hover);
-            transform: translateY(-3px);
-        }
+/* ---------- Graphiques ---------- */
+.chart { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 18px 12px; margin: 16px 0; position: relative; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { font-family: inherit; fill: var(--muted); font-size: 11.5px; }
+.chart .ink { fill: var(--text-2); }
+.chart .axis { stroke: #444; stroke-width: 1; }
+.chart .gridline { stroke: #2a2a2a; stroke-width: 1; }
+.chart-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.chart-head h4 { margin: 0; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.seg button { appearance: none; background: none; border: 0; color: var(--muted); font: inherit; font-size: 0.8rem; font-weight: 600; padding: 7px 14px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.82rem; color: var(--text-2); margin-top: 10px; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { display: inline-block; width: 22px; height: 0; border-top: 3px solid currentColor; }
+.legend i.dash { border-top-style: dashed; }
+.legend em { display: inline-block; width: 14px; height: 14px; border-radius: 3px; }
+.readout { position: absolute; pointer-events: none; display: none; background: #0b0b0b; border: 1px solid var(--border); border-radius: 8px; padding: 8px 11px; font-size: 0.8rem; color: var(--text-2); white-space: nowrap; z-index: 2; box-shadow: 0 4px 16px rgba(0,0,0,0.5); }
+.readout b { color: var(--text); display: block; margin-bottom: 3px; }
+.readout span { display: flex; align-items: center; gap: 6px; }
+.readout em { width: 10px; height: 3px; display: inline-block; }
 
-        .kpi-value {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            line-height: 1;
-        }
+/* Budget : barre de répartition */
+.bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); margin: 12px 0 8px; }
+.bar div { height: 100%; }
+.bar-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.84rem; color: var(--text-2); }
+.bar-legend em { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
 
-        .kpi-value.loss { color: var(--accent-red); }
-        .kpi-value.profit { color: var(--accent-green); }
+/* ---------- Détails pliables ---------- */
+details { background: var(--bg-inset); border: 1px solid var(--border-soft); border-radius: var(--radius); margin: 12px 0; }
+details summary { cursor: pointer; padding: 12px 18px; font-weight: 600; color: var(--text-2); list-style: none; display: flex; align-items: center; gap: 10px; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: "+"; color: var(--red); font-weight: 800; width: 14px; }
+details[open] summary::before { content: "\2212"; }
+details .inner { padding: 4px 18px 16px; color: var(--text-2); font-size: 0.93rem; }
+details .inner code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 0.86em; background: #1c1c1c; padding: 1px 6px; border-radius: 4px; color: var(--text); }
 
-        .kpi-label {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-        }
-        
-        /* Data Tables */
-        .table-container {
-            overflow-x: auto;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: var(--bg-panel);
-            margin-bottom: 20px;
-        }
+/* ---------- Navigation bas de page ---------- */
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--border-soft); }
+.pager a { display: inline-flex; flex-direction: column; color: var(--text); text-decoration: none; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius); min-width: 180px; transition: border-color 0.2s, background 0.2s; }
+.pager a:hover { border-color: var(--text); background: var(--bg-panel); }
+.pager a small { color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 1px; }
+.pager a.next { margin-left: auto; text-align: right; }
+footer { border-top: 1px solid var(--border); padding: 34px 0 48px; color: var(--muted); font-size: 0.86rem; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 28px; }
 
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            text-align: left;
-        }
-        
-        th, td { 
-            padding: 15px 20px; 
-            border-bottom: 1px solid var(--border-color); 
-        }
-        
-        th { 
-            background-color: rgba(255, 255, 255, 0.03); 
-            color: var(--text-muted);
-            font-weight: 600; 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            letter-spacing: 1px;
-        }
-        
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background-color: rgba(255, 255, 255, 0.02); }
-        
-        .price-tag {
-            font-size: 1.1rem;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        /* Text Cards */
-        .grid-text {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .text-card {
-            background-color: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            padding: 25px;
-            border-radius: 8px;
-        }
-
-        .text-card h4 {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-
-        .text-card p, .text-card ul {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .text-card ul {
-            padding-left: 20px;
-            margin-top: 10px;
-        }
-        
-        .text-card li {
-            margin-bottom: 8px;
-        }
-
-        .highlight { color: var(--text-main); font-weight: 600; }
-        .highlight-blue { color: #4da6ff; font-weight: 600; }
-
-        /* Strategy/Summary Box */
-        .strategy-box {
-            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-            border: 1px solid #444;
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-        
-        .strategy-box h4 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .footer { 
-            text-align: center; 
-            padding: 40px 20px; 
-            border-top: 1px solid var(--border-color); 
-            color: var(--text-muted); 
-            font-size: 0.9rem;
-        }
-    </style>
+@media (max-width: 760px) {
+  body { font-size: 15px; }
+  .topbar .wrap { flex-wrap: wrap; gap: 0 14px; min-height: 0; padding-top: 10px; }
+  .brand { width: 100%; }
+  .tabs { margin-left: 0; width: 100%; }
+  .tab { padding: 12px 10px 12px; font-size: 0.76rem; }
+  .hero { padding: 36px 0 26px; }
+  .panel { padding: 30px 0 40px; }
+  th, td { padding: 10px 12px; }
+  .pager a { min-width: 0; flex: 1; }
+}
+@media print {
+  .topbar, .pager, .seg, footer { display: none !important; }
+  html.js .panel[hidden] { display: block; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .hero, .card, .kpi, .tbl, .chart, .lecture, .callout, details { background: #fff; border-color: #bbb; }
+  a { color: #000; }
+}
+</style>
 </head>
 <body>
-    <header>
-        <h1>CANAL+</h1>
-        <p>Projet Prix & Budgets Marketing<br>Le Pass Match CANAL+ en France : Faut-il vendre un match à l'unité ?</p>
-    </header>
-    
-    <div class="container">
-        
-        <!-- SECTION 1 : LA QUESTION -->
-        <section id="question">
-            <h2>1. La question posée : Le Pass Match</h2>
-            
-            <div class="strategy-box">
-                <h4>La question de prix en bref</h4>
-                <p><span class="highlight">L'entreprise :</span> CANAL+ en France (Groupe Canal+, SIREN 420 624 777), qui vend les abonnements.</p>
-                <p><span class="highlight">Le produit :</span> Un "Pass Match", soit l'accès à un seul match en direct sur l'application CANAL+, sans abonnement.</p>
-                <p><span class="highlight">La décision :</span> À quel prix le vendre, et la marque CANAL+ permet-elle de le vendre plus cher ?</p>
-            </div>
 
-            <div class="grid-text">
-                <div class="text-card">
-                    <h4>Notre proposition</h4>
-                    <p>CANAL+ peut vendre en France un Pass Match à <span class="highlight">7,99 €</span>, à condition de le réserver aux non-abonnés.</p>
-                    <ul>
-                        <li><span class="highlight">Valeur perçue :</span> Le client accepte un prix entre 5,10 et 10 €, idéalement entre 7 et 8 €.</li>
-                        <li><span class="highlight">Plafond :</span> Le marché laisse un plafond de 10 € pour un match exclusif.</li>
-                        <li><span class="highlight">Rentabilité :</span> Vendu 7,99 €, il rapporte 6,44 € (droits déjà payés).</li>
-                        <li><span class="highlight">Risque :</span> Que des abonnés résilient. 1 100 résiliations effacent le gain d'une saison.</li>
-                    </ul>
-                </div>
-                <div class="text-card">
-                    <h4>La variation testée (Test A/B)</h4>
-                    <p>Nous avons testé l'impact de la marque sur la valeur perçue :</p>
-                    <ul>
-                        <li><span class="highlight">Version A :</span> Pass avec le logo CANAL+.</li>
-                        <li><span class="highlight">Version B :</span> Pass sans marque.</li>
-                    </ul>
-                    <p style="margin-top:10px;"><em>Pourquoi ce produit ?</em> Aucun concurrent direct ne vend de match seul. De plus, la demande illégale se concentre sur ces grands matchs (exclusivité CANAL+).</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION 2 : LES COMPTES -->
-        <section id="comptes">
-            <h2>2. Ce que disent les comptes : CANAL+ en France</h2>
-            
-            <p>Nous étudions <strong>Groupe Canal+</strong>, la holding qui vend les abonnements en France (données issues de <a href="https://www.pappers.fr" target="_blank">Pappers</a>).</p>
-            
-            <h3>De quoi vit-elle ? (2023)</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Source de revenus</th>
-                            <th>Montant</th>
-                            <th>Part du total</th>
-                            <th>Détail</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><span class="highlight">Abonnements</span></td>
-                            <td>1 608 M€</td>
-                            <td>67 %</td>
-                            <td>Télévision payante et application CANAL+</td>
-                        </tr>
-                        <tr>
-                            <td><span class="highlight">Autres activités</span></td>
-                            <td>779 M€</td>
-                            <td>33 %</td>
-                            <td>Cessions de droits, prestations techniques, frais facturés</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Total CA (2023)</strong></td>
-                            <td><strong>2 387 M€</strong></td>
-                            <td><strong>100 %</strong></td>
-                            <td>En hausse vs 2022 (1 851 M€)</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h3>Que disent les comptes ? (2022 vs 2023)</h3>
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-value">2 387 M€</div>
-                    <div class="kpi-label">CA 2023 (+28,9%)</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-value loss">-688 M€</div>
-                    <div class="kpi-label">Résultat Net 2023</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-value">1 365 M€</div>
-                    <div class="kpi-label">EBE 2023</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-value">1 667 M€</div>
-                    <div class="kpi-label">Capitaux Propres 2023</div>
-                </div>
-            </div>
-
-            <div class="grid-text">
-                <div class="text-card">
-                    <h4>L'origine de la perte nette</h4>
-                    <p>La perte de -688 M€ est une opération de prudence comptable. Elle s'explique par 558 M€ de dépréciations sur des filiales en difficulté : C8 (412 M€), CStar (83 M€), et SESI (56 M€).</p>
-                    <p>Sans cela, la perte serait de 130 M€.</p>
-                </div>
-                <div class="text-card">
-                    <h4>Ce que les comptes autorisent</h4>
-                    <ul>
-                        <li><span class="highlight">Pas de baisse générale :</span> L'exploitation perd déjà 58 M€. Une baisse de 10% des abonnements retirerait 161 M€ de résultat.</li>
-                        <li><span class="highlight">Oui à une nouvelle offre :</span> Les droits sont déjà payés. Un Pass attire des clients avec peu de coûts fixes.</li>
-                        <li><span class="highlight">Un matelas :</span> 1 667 M€ de capitaux propres permettent d'absorber l'échec d'un test.</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <p style="color: var(--text-muted); font-size: 0.9rem; font-style: italic; margin-top: 15px;">
-                Note : Sur le périmètre Europe (Groupe CANAL+ SA, données <a href="https://www.canalplusgroup.com/fr/results-and-publications" target="_blank">Rapport Annuel 2024</a>), le CA est de 4 731 M€ pour 17,24 M d'abonnés, soit un revenu max (incluant pub) d'environ 23 € par mois par abonné (274 €/an).
-            </p>
-        </section>
-
-        <!-- SECTION 3 : LE MARCHÉ -->
-        <section id="marche">
-            <h2>3. Ce que dit le marché : Un plafond à 10 €</h2>
-            
-            <p>Le marché du sport en direct payant en France. CANAL+ diffuse en exclusivité : Ligue des Champions, Ligue Europa, F1, MotoGP, Premier League, Top 14 (mais plus la Ligue 1).</p>
-            
-            <h3>Cercle 1 : Concurrents directs</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Acteur</th>
-                            <th>Offre Sportive Principale</th>
-                            <th>Prix (Sans engagement)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><span class="highlight">Ligue 1+</span></td>
-                            <td>100% Ligue 1 & Ligue 3</td>
-                            <td class="price-tag">24,99 €</td>
-                        </tr>
-                        <tr>
-                            <td><span class="highlight">beIN SPORTS</span></td>
-                            <td>Ligue 2, CdF, Bundesliga, CAN 2027</td>
-                            <td class="price-tag">≈ 15,00 €</td>
-                        </tr>
-                        <tr>
-                            <td><span class="highlight">DAZN</span></td>
-                            <td>Liga, Serie A, Basket, MMA</td>
-                            <td class="price-tag">15,99 €</td>
-                        </tr>
-                        <tr>
-                            <td><span class="highlight">Disney+</span></td>
-                            <td>Liga (via ESPN)</td>
-                            <td class="price-tag">Dès 6,99 €</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h3>Cercle 2 & 3 : Indirects et Piratage</h3>
-            <div class="grid-text">
-                <div class="text-card">
-                    <h4>Concurrents Indirects</h4>
-                    <ul>
-                        <li><span class="highlight">Gratuits :</span> France TV (Tour de France), M6 (CdM 2026).</li>
-                        <li><span class="highlight">Inclus (Déjà payés) :</span> Netflix (TF1), Prime Video (Roland-Garros).</li>
-                        <li><span class="highlight">Eurosport (HBO Max) :</span> Dès 11,99 €/mois.</li>
-                        <li><span class="highlight">RMC Sport :</span> 25 €/mois sans engagement (UFC).</li>
-                    </ul>
-                </div>
-                <div class="text-card">
-                    <h4>Le Piratage (Source : <a href="https://www.arcom.fr/nos-ressources/etudes-et-donnees/le-bilan-de-la-lutte-contre-le-piratage-en-2025" target="_blank">Arcom 2025</a>)</h4>
-                    <ul>
-                        <li><span class="highlight">Volume :</span> 7,7 M d'internautes pirates (-34% depuis 2021). L'IPTV représente environ 900 000 personnes.</li>
-                        <li><span class="highlight">Usage :</span> La demande pirate cible spécifiquement les grands matchs (pics lors de PSG-OM, LdC).</li>
-                        <li><span class="highlight">Légalisation :</span> 57% des avertis se tournent vers l'offre légale. Un Pass cible parfaitement ce public.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="strategy-box">
-                <h4>Le Plafond de Prix du Pass</h4>
-                <p><strong>Règle :</strong> Le prix ne doit pas dépasser le coût d'un mois d'abonnement sans engagement.</p>
-                <ul>
-                    <li><strong>Événement exclusif CANAL+ :</strong> Plafond de <span class="highlight">10 €</span> (Prix de l'option Pass Coupes d'Europe).</li>
-                    <li><strong>Événement concurrentiel :</strong> Plafond d'environ <span class="highlight">15 €</span> (beIN, DAZN).</li>
-                </ul>
-                <p style="margin-top: 10px;">Face à un Pass Coupes d'Europe à 10€, un Pass Match à 9,99€ n'apporte rien. Un Pass à 4,99€ rend l'abonnement mensuel plus intéressant dès le 3ème match. Il doit donc être nettement sous 10€.</p>
-            </div>
-        </section>
-
-        <!-- SECTION 4 : LA MESURE -->
-        <section id="mesure">
-            <h2>4. Ce que dit notre mesure : Test A/B</h2>
-            
-            <p>121 répondants cibles ont été répartis aléatoirement entre la Version A (avec logo CANAL+) et B (sans marque).</p>
-
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-value">5,10 € à 10 €</div>
-                    <div class="kpi-label">Zone de prix acceptable globale</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-value">7 € à 8 €</div>
-                    <div class="kpi-label">Zone de prix idéale</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-value">39 %</div>
-                    <div class="kpi-label">Intention d'achat moyenne</div>
-                </div>
-            </div>
-
-            <div class="grid-text">
-                <div class="text-card">
-                    <h4>Impact de la marque (Van Westendorp)</h4>
-                    <ul>
-                        <li><span class="highlight">Version A (CANAL+) :</span> Acceptable entre 5,50 € et 10,10 €.</li>
-                        <li><span class="highlight">Version B (Sans marque) :</span> Acceptable entre 5,10 € et 10,00 €.</li>
-                    </ul>
-                    <p>Les zones se recouvrent. On ne peut pas conclure statistiquement que la marque fait accepter un prix plus élevé, ni qu'elle décourage l'achat (30% d'intention en A vs 46% en B, sur un petit échantillon).</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION 5 & 6 : PRIX ET RENTABILITÉ -->
-        <section id="rentabilite">
-            <h2>5 & 6. Le Prix Retenu : 7,99 € & Modèle Économique</h2>
-            
-            <div class="strategy-box">
-                <h4>Pourquoi 7,99 € ?</h4>
-                <p>1. <span class="highlight">Plafond (Concurrence) :</span> 10 € (Loin des 15€ de beIN/DAZN).</p>
-                <p>2. <span class="highlight">Valeur perçue :</span> 7,99 € est en haut de la zone idéale (7-8 €).</p>
-                <p>3. <span class="highlight">Plancher (Coûts) :</span> Très au-dessus du coût variable unitaire (0,83 €).</p>
-                <p>4. <span class="highlight">Psychologie :</span> Reste sous le seuil symbolique des 8 €.</p>
-                <p>La marque CANAL+ est conservée car elle ne coûte rien à ajouter.</p>
-            </div>
-
-            <h3>L'Économie d'un Pass (Unitaire)</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Poste</th>
-                            <th>Montant</th>
-                            <th>Calcul / Source</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Prix Client (TTC)</td>
-                            <td class="price-tag">7,99 €</td>
-                            <td>Prix retenu</td>
-                        </tr>
-                        <tr>
-                            <td>TVA (10%)</td>
-                            <td>0,73 €</td>
-                            <td>7,99 - (7,99 / 1,10)</td>
-                        </tr>
-                        <tr>
-                            <td>Recette HT</td>
-                            <td>7,26 €</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td>Frais bancaires (<a href="https://stripe.com/fr/pricing" target="_blank">Stripe</a>)</td>
-                            <td>0,37 €</td>
-                            <td>1,5% × 7,99 + 0,25 €</td>
-                        </tr>
-                        <tr>
-                            <td>Frais diffusion (Serveurs)</td>
-                            <td>0,46 €</td>
-                            <td>Hypothèse : 2h × 3Go HD × 0,085$/Go</td>
-                        </tr>
-                        <tr>
-                            <td>Droits du match</td>
-                            <td>0,00 €</td>
-                            <td>Déjà payés (inclus dans les 3 896 M€ du Groupe)</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Contribution Marginale</strong></td>
-                            <td class="price-tag profit">6,44 €</td>
-                            <td>Taux de contribution : 89 %</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h3>Budget et Seuil de Rentabilité (Coûts Fixes)</h3>
-            <p>Le budget de lancement est estimé à <span class="highlight">546 387 €</span> (fourchette haute prudente), comprenant :</p>
-            <ul style="margin-bottom: 20px; margin-left: 20px; color: var(--text-muted);">
-                <li>Une équipe produit de 5 personnes sur 4 mois (≈ 140 167 €).</li>
-                <li>Un Media Buyer sur 10 mois (≈ 72 500 €).</li>
-                <li>Une campagne publicitaire visant les 900 000 utilisateurs IPTV (≈ 333 720 €).</li>
-            </ul>
-
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-value">84 882</div>
-                    <div class="kpi-label">Pass à vendre (Seuil rentabilité)</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-value profit">+235 709 €</div>
-                    <div class="kpi-label">Résultat prévu sur la saison</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-value">2,75 €</div>
-                    <div class="kpi-label">Coût d'acquisition client (CAC)</div>
-                </div>
-            </div>
-
-            <div class="grid-text">
-                <div class="text-card">
-                    <h4>Le Scénario Prévu</h4>
-                    <p>Sur les 900 000 pirates IPTV, 30% ont une intention d'achat (Test version A). Avec un biais déclaratif prudent de 5% de passage à l'acte, on obtient <span class="highlight">13 500 Pass par mois</span>, soit 121 500 Pass sur 9 mois.</p>
-                    <p>Résultat : 121 500 × 6,44 € - 546 387 € = <span class="highlight profit">+235 709 €</span>.</p>
-                </div>
-                <div class="text-card" style="border-color: var(--accent-red);">
-                    <h4 style="color: var(--accent-red);">Stress Test : Le risque de cannibalisation</h4>
-                    <p>Un abonné européen rapporte environ 274 €/an. Même s'il achète 9 Pass (58 € de contribution), la perte est de 216 €.</p>
-                    <p>Il suffit d'environ <span class="highlight loss">1 100 abonnés résiliant pour le Pass</span> (soit 0,01% du parc) pour effacer totalement les 235 709 € de bénéfice prévus.</p>
-                    <p><strong>Garde-fous :</strong> Réserver l'offre aux non-abonnés (aucun abonnement actif depuis 3 mois) et vendre uniquement sur le site web (pas de commission Apple).</p>
-                </div>
-            </div>
-        </section>
-
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo">CANAL<span>+</span></div>
+      <small>Pass Match · dossier Prix et budget</small>
     </div>
-    
-    <div class="footer">
-        Dépôt GitHub : <a href="index.html">Retour au questionnaire</a> | Pexi58/questionnaire-pass-sport
+    <nav class="tabs" role="tablist" aria-label="Parties du dossier">
+      <button class="tab" role="tab" id="tab-entreprise" aria-controls="entreprise" aria-selected="true"><span class="num">1</span>L'entreprise</button>
+      <button class="tab" role="tab" id="tab-concurrents" aria-controls="concurrents" aria-selected="false" tabindex="-1"><span class="num">2</span>Les concurrents</button>
+      <button class="tab" role="tab" id="tab-prix" aria-controls="prix" aria-selected="false" tabindex="-1"><span class="num">3</span>Le prix psychologique</button>
+      <button class="tab" role="tab" id="tab-budget" aria-controls="budget" aria-selected="false" tabindex="-1"><span class="num">4</span>Le budget</button>
+      <button class="tab" role="tab" id="tab-proposition" aria-controls="proposition" aria-selected="false" tabindex="-1"><span class="num">5</span>La proposition</button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="kicker">Prix et budgets marketing · M1 Marketing-Vente · IAE Clermont-Auvergne</div>
+    <h1>Le Pass Match CANAL+ en France : faut-il vendre un match à l'unité ?</h1>
+    <p class="sub">Un accès à un seul match en direct, sans abonnement, sur l'application CANAL+. Nous répondons à deux questions : à quel prix le vendre, et la marque CANAL+ permet-elle de le vendre plus cher ?</p>
+    <p class="meta">Chaque chiffre porte sa source en lien dans la phrase qui l'utilise. Les encadrés « Lecture » sont notre interprétation, pas un fait. Le dossier se lit en cinq onglets, dans l'ordre.</p>
+  </div>
+</section>
+
+<main>
+
+<!-- ===================================================================== 1. ENTREPRISE -->
+<section class="panel" id="entreprise" role="tabpanel" aria-labelledby="tab-entreprise">
+  <div class="wrap">
+    <div class="panel-head">
+      <div class="step">Onglet 1</div>
+      <h2>CANAL+ en France et le Pass Match</h2>
+      <p class="lead">CANAL+ en France vend plus qu'avant, mais perd de l'argent. Ses comptes interdisent de brader l'abonnement ; ils autorisent une offre d'appoint peu coûteuse à produire, à condition qu'elle ne prenne pas ses clients à l'abonnement.</p>
     </div>
-    <p>https://docs.google.com/spreadsheets/d/1itZ4G8MJh_IKhMllXsf0m8XKNVTKbrZaH-lyYHx3HeQ/edit?gid=1082711852#gid=1082711852<p>
+
+    <h3>Le produit : un Pass pour un seul match</h3>
+    <figure class="figure">
+      <img src="images/offre-pass-1-match.jpg" alt="Maquette de l'offre CANAL+ Pass 1 Match telle qu'elle pourrait apparaître sur le site de CANAL+ : un bandeau « Sans engagement, 7,99 € le match » avec les visuels Ligue des champions, Top 14, Formule 1 et MotoGP" width="1068" height="419" loading="eager">
+      <figcaption>Maquette de l'équipe : à quoi pourrait ressembler le Pass Match sur le site de CANAL+. L'offre n'existe pas ; les visuels des compétitions sont ceux que CANAL+ diffuse en 2026-2027 (voir l'onglet 2).</figcaption>
+    </figure>
+
+    <div class="grid c2">
+      <div class="card">
+        <h4>La question de prix, en trois lignes</h4>
+        <p><strong>L'entreprise :</strong> CANAL+ en France, c'est-à-dire la société Groupe Canal+ (SIREN 420 624 777), qui vend les abonnements CANAL+ aux Français.</p>
+        <p><strong>Le produit :</strong> un accès à un seul match en direct sur l'application CANAL+, sans abonnement, vendu sur le site web de CANAL+.</p>
+        <p><strong>La décision :</strong> à quel prix le vendre, et la marque CANAL+ permet-elle de le vendre plus cher ?</p>
+      </div>
+      <div class="card">
+        <h4>Pourquoi ce produit</h4>
+        <ul>
+          <li>Aucun concurrent direct ne vend un match seul sans abonnement (<a href="#concurrents">onglet 2</a>).</li>
+          <li>La demande illégale se concentre sur les grands matchs, que CANAL+ détient en exclusivité (onglet 2, cercle 3).</li>
+          <li>Le client visé est le non-abonné qui veut voir un grand match précis, une ou deux fois par mois. Pas l'abonné actuel : c'est le risque principal (<a href="#proposition">onglet 5</a>).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout">
+      <h4>Notre réponse en bref</h4>
+      <p>CANAL+ peut vendre en France un Pass Match à <strong>7,99&nbsp;€</strong>, à condition de le réserver aux non-abonnés.</p>
+      <ul>
+        <li>Le client accepte un prix entre 5,10 et 10&nbsp;€ et le juge idéal entre 7 et 8&nbsp;€ (<a href="#prix">onglet 3</a>).</li>
+        <li>Le marché laisse un plafond de 10&nbsp;€ pour un match que seul CANAL+ diffuse (<a href="#concurrents">onglet 2</a>).</li>
+        <li>Un Pass vendu 7,99&nbsp;€ rapporte 6,44&nbsp;€ à CANAL+, car les droits du match sont déjà payés (<a href="#budget">onglet 4</a>).</li>
+        <li>Le risque principal : que des abonnés résilient pour acheter des Pass. Environ 1&nbsp;100 abonnés perdus suffisent à effacer le gain d'une saison (<a href="#proposition">onglet 5</a>).</li>
+      </ul>
+    </div>
+
+    <h3>Qui est-elle ?</h3>
+    <span class="notion">Notion du cours : <b>bien poser la question de prix avant de chercher un chiffre</b> (quel produit, pour quel client, contre quelle alternative)</span>
+    <p>Nous étudions <strong>Groupe Canal+</strong>, la société française qui vend les abonnements CANAL+ en France. Les données ci-dessous viennent de ses <a class="src" href="https://www.pappers.fr/entreprise/groupe-canal-420624777" target="_blank" rel="noopener">comptes publiés sur Pappers</a> : SIREN 420 624 777, siège au 50 rue Camille Desmoulins à Issy-les-Moulineaux, créée en 1998, entre 1&nbsp;000 et 1&nbsp;999 salariés.</p>
+    <ul>
+      <li>C'est une <a class="src" href="https://www.pappers.fr/entreprise/groupe-canal-420624777/comptes/GROUPE%20CANAL%20%2B%20-%20Comptes%20sociaux%202023%2017-04-2024.pdf" target="_blank" rel="noopener">holding qui vend aussi elle-même</a>. Elle détient les filiales du groupe, dont StudioCanal, C8, CNews, CStar, Canal+ International et Canal+ Polska.</li>
+      <li><strong>Pourquoi cette société et pas le groupe entier.</strong> Le groupe CANAL+ SA additionne la France, la Pologne, l'Afrique et l'Asie. Il ne publie plus de chiffres propres à la France : son plus petit périmètre est « Europe » (voir plus bas). Groupe Canal+ est donc la meilleure image de CANAL+ en France.</li>
+    </ul>
+
+    <h3>De quoi vit-elle ?</h3>
+    <p>Son chiffre d'affaires atteint 2&nbsp;387&nbsp;M€ en 2023, contre 1&nbsp;851&nbsp;M€ en 2022 et 1&nbsp;675&nbsp;M€ en 2021 (source : <a class="src" href="https://www.pappers.fr/entreprise/groupe-canal-sa-420624777/comptes/GROUPE%20CANAL%2B%20SA%20-%20Comptes%20sociaux%202023%2017-04-2024.pdf" target="_blank" rel="noopener">comptes annuels 2023</a>).</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Source de revenus (2023)</th><th class="num">Montant</th><th class="num">Part du total</th><th>Ce que c'est</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Abonnements</strong></td><td class="num">1&nbsp;608&nbsp;M€</td><td class="num">67&nbsp;%</td><td>Télévision payante et application CANAL+</td></tr>
+        <tr><td><strong>Autres activités</strong></td><td class="num">779&nbsp;M€</td><td class="num">33&nbsp;%</td><td>Cessions de droits, prestations techniques, frais facturés aux filiales</td></tr>
+        <tr class="total"><td>Total</td><td class="num">2&nbsp;387&nbsp;M€</td><td class="num">100&nbsp;%</td><td><span class="muted">Parts calculées par l'équipe : 1&nbsp;608 ÷ 2&nbsp;387 = 67&nbsp;%</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="lecture"><p>Deux tiers du chiffre d'affaires viennent des abonnés. Le prix d'abonnement est donc le levier principal de l'entreprise.</p></div>
+
+    <h3>Que disent ses comptes ?</h3>
+    <div class="kpis">
+      <div class="kpi"><div class="v">2&nbsp;387&nbsp;M€</div><div class="l">Chiffre d'affaires 2023</div><div class="f">+28,9&nbsp;% sur un an</div></div>
+      <div class="kpi"><div class="v">1&nbsp;365&nbsp;M€</div><div class="l">Excédent brut d'exploitation</div><div class="f">1&nbsp;212&nbsp;M€ en 2022</div></div>
+      <div class="kpi"><div class="v loss">−58&nbsp;M€</div><div class="l">Résultat d'exploitation</div><div class="f">−2,4&nbsp;% du chiffre d'affaires</div></div>
+      <div class="kpi"><div class="v loss">−688&nbsp;M€</div><div class="l">Résultat net 2023</div><div class="f">−40&nbsp;M€ en 2022</div></div>
+      <div class="kpi"><div class="v">1&nbsp;667&nbsp;M€</div><div class="l">Capitaux propres</div><div class="f">2&nbsp;088&nbsp;M€ en 2022</div></div>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Indicateur</th><th class="num">2022</th><th class="num">2023</th></tr></thead>
+      <tbody>
+        <tr><td>Chiffre d'affaires</td><td class="num">1&nbsp;851&nbsp;M€</td><td class="num">2&nbsp;387&nbsp;M€ <span class="muted">(+28,9&nbsp;%)</span></td></tr>
+        <tr><td>Excédent brut d'exploitation</td><td class="num">1&nbsp;212&nbsp;M€</td><td class="num">1&nbsp;365&nbsp;M€</td></tr>
+        <tr><td>Résultat d'exploitation</td><td class="num">−79&nbsp;M€</td><td class="num">−58&nbsp;M€</td></tr>
+        <tr><td>Résultat financier</td><td class="num">+45&nbsp;M€</td><td class="num">−627&nbsp;M€</td></tr>
+        <tr><td>Résultat net</td><td class="num">−40&nbsp;M€</td><td class="num">−688&nbsp;M€</td></tr>
+        <tr><td>Marge nette (résultat net ÷ CA)</td><td class="num">−2,2&nbsp;%</td><td class="num">−28,8&nbsp;%</td></tr>
+        <tr><td>Capitaux propres</td><td class="num">2&nbsp;088&nbsp;M€</td><td class="num">1&nbsp;667&nbsp;M€</td></tr>
+        <tr><td>Total du bilan</td><td class="num">6&nbsp;786&nbsp;M€</td><td class="num">6&nbsp;735&nbsp;M€</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid c2">
+      <div class="card">
+        <h4>D'où vient la perte de 688&nbsp;M€</h4>
+        <p>C'est une opération de prudence comptable. La holding a passé <a class="src" href="https://www.pappers.fr/entreprise/groupe-canal-420624777/comptes/GROUPE%20CANAL%20%2B%20-%20Comptes%20sociaux%202023%2017-04-2024.pdf" target="_blank" rel="noopener">558&nbsp;M€ de dépréciations financières</a>, surtout sur des avances faites à des filiales en difficulté : C8 (412&nbsp;M€), CStar (83&nbsp;M€) et SESI (56&nbsp;M€).</p>
+        <p>Ces 558&nbsp;M€ représentent 81&nbsp;% de la perte (558 ÷ 688, calcul de l'équipe). Sans eux, la perte serait de 130&nbsp;M€.</p>
+      </div>
+      <div class="card">
+        <h4>La structure financière</h4>
+        <ul>
+          <li><strong>Actif immobilisé : 6&nbsp;279&nbsp;M€</strong>, surtout les titres des filiales (3&nbsp;214&nbsp;M€) et le fonds de commerce (1&nbsp;850&nbsp;M€).</li>
+          <li><strong>Dettes financières : 4&nbsp;112&nbsp;M€</strong>, presque entièrement des avances de trésorerie internes au groupe, dont 3&nbsp;488&nbsp;M€ venant de Vivendi (85&nbsp;% du total).</li>
+          <li><strong>Capitaux propres : 1&nbsp;667&nbsp;M€</strong>, maintenus grâce à l'apport par Vivendi des titres de la SECP (+258&nbsp;M€).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="lecture">
+      <p><strong>Ce que les comptes autorisent en matière de prix.</strong></p>
+      <ul>
+        <li><strong>Pas de baisse de prix générale.</strong> L'exploitation perd déjà 58&nbsp;M€ (−2,4&nbsp;% du chiffre d'affaires). Une baisse de 10&nbsp;% sur les abonnements, à volume égal, retirerait environ 161&nbsp;M€ (10&nbsp;% de 1&nbsp;608&nbsp;M€) au résultat.</li>
+        <li><strong>Oui à une offre en plus, peu coûteuse à produire.</strong> Les droits sportifs sont déjà payés. Une offre qui attire de nouveaux clients sans faire partir les abonnés ajoute de la marge sans nouveau coût fixe important.</li>
+        <li><strong>Un matelas pour tester.</strong> 1&nbsp;667&nbsp;M€ de capitaux propres et le soutien financier du groupe permettent d'absorber l'échec d'un test d'une saison.</li>
+      </ul>
+      <p>CANAL+ en France ne peut pas se permettre de brader ses abonnements. Elle peut en revanche tester une offre d'appoint, si celle-ci ne prend pas ses clients à l'abonnement.</p>
+    </div>
+
+    <h3>Le contexte du groupe CANAL+ SA (tous pays)</h3>
+    <p><a class="src" href="https://www.canalplusgroup.com/uploads/CANAL_Annual_Report_2024_EN_11e2ae2255.pdf" target="_blank" rel="noopener">Ces chiffres</a> couvrent tous les pays. Nous ne les utilisons que pour le revenu par abonné et la capacité à absorber un risque. Le rapport annuel 2024 se télécharge sur la page <a class="src" href="https://www.canalplusgroup.com/en/results-and-publications" target="_blank" rel="noopener">« Results and publications » de CANAL+</a>.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Indicateur</th><th class="num">2024</th><th class="num">2023</th></tr></thead>
+      <tbody>
+        <tr><td>Chiffre d'affaires</td><td class="num">6&nbsp;449&nbsp;M€</td><td class="num">6&nbsp;223&nbsp;M€</td></tr>
+        <tr><td>dont abonnements</td><td class="num">5&nbsp;197&nbsp;M€ <span class="muted">(≈ 80&nbsp;%)</span></td><td class="num">5&nbsp;048&nbsp;M€</td></tr>
+        <tr><td>Coûts de contenus</td><td class="num">3&nbsp;896&nbsp;M€ <span class="muted">(60&nbsp;% du CA)</span></td><td class="num">3&nbsp;725&nbsp;M€</td></tr>
+        <tr><td>Coûts techniques, administratifs et commerciaux</td><td class="num">2&nbsp;090&nbsp;M€</td><td class="num">2&nbsp;021&nbsp;M€</td></tr>
+        <tr><td>EBITA avant éléments exceptionnels</td><td class="num">503&nbsp;M€ <span class="muted">(marge 7,8&nbsp;%)</span></td><td class="num">477&nbsp;M€</td></tr>
+        <tr><td>Résultat net</td><td class="num">−96&nbsp;M€</td><td class="num">−16&nbsp;M€</td></tr>
+        <tr><td>Trésorerie</td><td class="num">376&nbsp;M€</td><td class="num">334&nbsp;M€</td></tr>
+        <tr><td>Dette nette</td><td class="num">355&nbsp;M€</td><td class="num">—</td></tr>
+        <tr><td>Flux de trésorerie opérationnels (CFFO)</td><td class="num">218&nbsp;M€</td><td class="num">315&nbsp;M€</td></tr>
+        <tr><td>Abonnés</td><td class="num">26,9&nbsp;M</td><td class="num">26,8&nbsp;M</td></tr>
+        <tr><td>dont Europe / Afrique et Asie</td><td class="num">17,24&nbsp;M / 9,69&nbsp;M</td><td class="num">—</td></tr>
+        <tr><td>Chiffre d'affaires Europe</td><td class="num">4&nbsp;731&nbsp;M€</td><td class="num">—</td></tr>
+      </tbody>
+    </table></div>
+    <div class="lecture"><p><strong>Le revenu par abonné en Europe.</strong> 4&nbsp;731&nbsp;M€ ÷ 17,24&nbsp;M abonnés = 274&nbsp;€ par an, soit environ 23&nbsp;€ par mois. C'est un maximum : ce chiffre d'affaires inclut la publicité. Nous l'utilisons comme approximation pour la France, faute de chiffre français publié. Il sert au stress test de l'onglet 5 (le coût d'un abonné perdu).</p></div>
+
+    <nav class="pager"><a href="#concurrents" class="next"><small>Onglet suivant</small>2. Les concurrents</a></nav>
+  </div>
+</section>
+
+<!-- ===================================================================== 2. CONCURRENTS -->
+<section class="panel" id="concurrents" role="tabpanel" aria-labelledby="tab-concurrents" hidden>
+  <div class="wrap">
+    <div class="panel-head">
+      <div class="step">Onglet 2</div>
+      <h2>Ce que dit le marché : un plafond à 10&nbsp;€</h2>
+      <p class="lead">Aucun concurrent ne vend un match seul, sans abonnement. Le vrai concurrent du Pass est l'abonnement d'un mois sans engagement, que l'on prend puis résilie.</p>
+    </div>
+    <span class="notion">Notion du cours : <b>le plafond de prix vient des concurrents</b>, le plancher des coûts</span>
+    <p><strong>Le marché en une phrase.</strong> Le sport en direct payant en France, pour le spectateur qui veut voir un match ou un Grand Prix précis, sur sa télévision ou son téléphone.</p>
+    <p><strong>Notre critère de classement.</strong> Le client qui veut voir un match peut-il le trouver chez cet acteur, et à quel prix ?</p>
+
+    <div class="card">
+      <h4>Ce que CANAL+ diffuse en 2026-2027</h4>
+      <ul>
+        <li>Toute la Ligue des champions, la Ligue Europa et la Conférence League, <a class="src" href="https://www.universfreebox.com/article/596566/ligue-1-canal-bein-sports-dazn-disney-ou-regarder-le-football-sur-les-box-de-free-orange-sfr-et-bouygues-cette-saison" target="_blank" rel="noopener">en exclusivité en France jusqu'en 2031</a>.</li>
+        <li>La Formule 1 et le MotoGP, <a class="src" href="https://www.ariase.com/streaming/dossiers/formule-1-et-moto-gp-comment-regarder-les-grands-prix-a-la-tv-et-en-streaming" target="_blank" rel="noopener">en exclusivité jusqu'en 2029</a>.</li>
+        <li><a class="src" href="https://www.serie-news.com/canal-plus/43306-sport-sur-canal-en-septembre-2026-football-formule-1-motogp-rugby-le-programme-a-retenir-31-08-2026/" target="_blank" rel="noopener">La Premier League et le Top 14</a>.</li>
+        <li>Plus la Ligue 1 : elle est désormais 100&nbsp;% sur <a class="src" href="https://ligue1.com/fr/articles/l1_article_5623-ligue-1-toutes-les-offres-et-tous-les-tarifs-pour-2026-2027" target="_blank" rel="noopener">Ligue 1+, la plateforme de la Ligue</a>.</li>
+      </ul>
+    </div>
+
+    <h3>Cercle 1 : les concurrents directs</h3>
+    <p class="muted small">Du sport en direct payant, au même public.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Acteur</th><th>Ce qu'il vend</th><th>Prix relevés</th><th>Pourquoi il est direct</th></tr></thead>
+      <tbody>
+        <tr><td><strong><a class="src" href="https://ligue1.com/fr/offres-ligue1plus" target="_blank" rel="noopener">Ligue 1+</a></strong><span class="cell-note">la Ligue</span></td><td>100&nbsp;% de la Ligue 1 et la Ligue 3</td><td><span class="price">24,99&nbsp;€/mois</span> sans engagement ; 19,99&nbsp;€ avec 12 mois ; 11,99&nbsp;€ moins de 26 ans ; 199&nbsp;€/an</td><td>Même supporter, même écran. Pas de pass à la rencontre.</td></tr>
+        <tr><td><strong>beIN SPORTS</strong></td><td>Ligue 2, Coupe de France, Bundesliga, CAN 2027 ; <a class="src" href="https://www.laliga.com/en-GB/news/disney-and-dazn-become-the-new-home-of-laliga-ea-sports-in-france" target="_blank" rel="noopener">a perdu la Liga</a></td><td><a class="src" href="https://www.echosdunet.net/tv/streaming/bein-sports" target="_blank" rel="noopener"><span class="price">≈ 15&nbsp;€/mois</span> sans engagement</a></td><td>Prix d'entrée le plus bas du football payant. Aussi inclus dans CANAL+ Sport : concurrent et partenaire.</td></tr>
+        <tr><td><strong>DAZN</strong></td><td>Liga, Serie A, basket, boxe, MMA ; distribue aussi Ligue 1+</td><td><a class="src" href="https://www.echosdunet.net/tv/actualites/dazn-ligue-1-plus-laliga-serie-a-prix-abonnement" target="_blank" rel="noopener"><span class="price">15,99&nbsp;€/mois</span> sans engagement</a> ; 10,99&nbsp;€ avec 12 mois ; DAZN + Ligue 1+ 27,99&nbsp;€ sans engagement ; 13,99&nbsp;€ pour les 18-25 ans</td><td>Seul exemple de vente à l'événement : certains combats, mais leur prix s'ajoute à l'abonnement.</td></tr>
+        <tr><td><strong>Disney+</strong><span class="cell-note">nouvel entrant</span></td><td>Les 380 matchs de <a class="src" href="https://www.laliga.com/en-GB/news/disney-and-dazn-become-the-new-home-of-laliga-ea-sports-in-france" target="_blank" rel="noopener">Liga via ESPN</a>, jusqu'en 2028-2029</td><td><a class="src" href="https://press.disney.co.uk/news/disney-adds-laliga-to-its-live-sports-offering-in-france" target="_blank" rel="noopener"><span class="price">Dès 6,99&nbsp;€/mois</span></a> : la Liga est incluse dans tous les abonnements, sans supplément</td><td>Grande plateforme qui entre sur le football, limitée à la Liga.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Cercle 2 : les concurrents indirects</h3>
+    <p class="muted small">Autre offre, même besoin.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Acteur</th><th>Ce qu'il offre</th><th>Prix</th><th>Pourquoi indirect</th></tr></thead>
+      <tbody>
+        <tr><td><strong>France Télévisions</strong></td><td><a class="src" href="https://www.francetvpro.fr/contenu-de-presse/77734768" target="_blank" rel="noopener">Les 21 étapes du Tour de France</a> en clair ; <a class="src" href="https://www.rolandgarros.com/fr-fr/article/roland-garros-2026-diffuseurs-tv-france-international" target="_blank" rel="noopener">Roland-Garros</a> en journée</td><td><span class="price">Gratuit</span></td><td>Le client compare le Pass à zéro.</td></tr>
+        <tr><td><strong>M6</strong></td><td><a class="src" href="https://www.echosdunet.net/tv/actualites/coupe-du-monde-2026-tv" target="_blank" rel="noopener">54 matchs de la Coupe du monde 2026</a> en clair, dont tous ceux des Bleus</td><td><span class="price">Gratuit</span></td><td>Grands événements gratuits.</td></tr>
+        <tr><td><strong>TF1 via Netflix</strong></td><td><a class="src" href="https://www.abcbourse.com/marches/tf1-et-tf1-sont-desormais-integres-a-netflix-en-france_698550" target="_blank" rel="noopener">Les chaînes TF1 en direct sur Netflix</a> depuis le 19 juin 2026, sport compris</td><td>Inclus dans Netflix</td><td>Sport en direct dans un abonnement déjà payé.</td></tr>
+        <tr><td><strong>Prime Video</strong></td><td>Les sessions de soirée de <a class="src" href="https://www.echosdunet.net/tv/actualites/roland-garros-2026" target="_blank" rel="noopener">Roland-Garros en exclusivité</a></td><td>Inclus dans Prime à <span class="price">6,99&nbsp;€/mois</span></td><td>Plateforme déjà payée par le client.</td></tr>
+        <tr><td><strong>Eurosport via HBO Max</strong></td><td>Tour de France complet, tennis, cyclisme</td><td><a class="src" href="https://selectra.info/telecom/tv/svod/hbo-max" target="_blank" rel="noopener">Abonnement HBO Max + option Sport à 5&nbsp;€/mois</a>, soit <span class="price">dès 11,99&nbsp;€/mois</span></td><td>Moins cher que CANAL+ Sport, et déjà inclus dans CANAL+ Sport.</td></tr>
+        <tr><td><strong>RMC Sport</strong></td><td>Recentré sur les sports de combat (UFC)</td><td><a class="src" href="https://selectra.info/telecom/actualites/marche/ufc-333-rmc-sport-prix-canal-free-samedi-24" target="_blank" rel="noopener">15&nbsp;€/mois avec 12 mois</a> d'engagement ; <span class="price">25&nbsp;€</span> sans engagement</td><td>Même besoin, mais plus de droits en commun avec CANAL+.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Cercle 3 : celui qu'on oublie, le piratage</h3>
+    <p>Les chiffres ci-dessous proviennent du <a class="src" href="https://www.arcom.fr/sites/default/files/2026-03/Arcom_Bilan%202025_Lutte_Piratage.pdf" target="_blank" rel="noopener">bilan 2025 de l'Arcom</a> sur la lutte contre le piratage.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v">7,7&nbsp;M</div><div class="l">Internautes pirates en 2025</div><div class="f">15,7&nbsp;M en 2018 ; −34&nbsp;% depuis 2021</div></div>
+      <div class="kpi"><div class="v">≈ 0,9&nbsp;M</div><div class="l">Utilisateurs d'IPTV</div><div class="f">12&nbsp;% × 7,7&nbsp;M, calcul de l'équipe</div></div>
+      <div class="kpi"><div class="v">6&nbsp;500</div><div class="l">Notifications de blocage sport</div><div class="f">en 2025</div></div>
+      <div class="kpi"><div class="v">57&nbsp;%</div><div class="l">Des avertis vont vers l'offre légale</div><div class="f">65&nbsp;% réduisent leur consommation illicite</div></div>
+    </div>
+    <ul>
+      <li><strong>Le piratage recule mais reste massif.</strong> 7,7 millions d'internautes en 2025, contre 15,7 millions en 2018 : −4&nbsp;% en un an et −34&nbsp;% depuis 2021.</li>
+      <li><strong><a class="src" href="https://next.ink/230400/piratage-larcom-revendique-le-blocage-de-plus-de-15-000-noms-de-domaine-depuis-2022/" target="_blank" rel="noopener">L'IPTV reste minoritaire</a>.</strong> Elle pèse 12&nbsp;% des pratiques illicites, soit environ 0,9 million d'internautes.</li>
+      <li><strong>Le sport concentre les blocages.</strong> Environ 6&nbsp;500 notifications en 2025.</li>
+      <li><strong>La demande pirate suit les grands matchs.</strong> Le graphique mensuel du bilan montre des pics autour de PSG-OM, PSG-Liverpool et de la CAN : c'est exactement la cible d'un Pass à l'unité.</li>
+      <li><strong>L'avertissement pousse vers l'offre légale.</strong> 17&nbsp;% des Français de 15 ans et plus ont reçu une recommandation de l'Arcom ; 65&nbsp;% d'entre eux réduisent leur consommation illicite et 57&nbsp;% se tournent vers l'offre légale.</li>
+      <li><strong>CANAL+ agit.</strong> En mai 2025, CANAL+ a obtenu du tribunal judiciaire de Paris que cinq fournisseurs de VPN bloquent <a class="src" href="https://www.advanced-television.com/2025/05/16/france-court-orders-vpns-to-block-illegal-sports-streaming/" target="_blank" rel="noopener">plus de 200 sites de sport illégal</a>. Son <a class="src" href="https://www.echosdunet.net/tv/canal" target="_blank" rel="noopener">offre jeunes RAT+</a> coûte 13,99&nbsp;€/mois.</li>
+    </ul>
+    <p class="muted small"><strong>Limite.</strong> Le bilan de l'Arcom ne mesure ni le prix ni le consentement à payer des pirates. Dire qu'un Pass les convertirait reste une hypothèse, testée par notre questionnaire (onglet 3).</p>
+
+    <h3>Le mapping : où se place le Pass</h3>
+    <p>Deux axes : ce que le client paie pour voir <em>un</em> match (prix du mois sans engagement, ou de l'abonnement qui inclut le sport), et l'engagement qu'on lui demande. Les prix sont ceux des tableaux ci-dessus.</p>
+    <div class="chart" id="mapping">
+      <svg viewBox="0 0 760 470" role="img" aria-labelledby="map-title map-desc">
+        <title id="map-title">Mapping des concurrents : prix pour voir un match et engagement demandé</title>
+        <desc id="map-desc">Les abonnements sport occupent le bas du schéma, de 6,99 à 25 euros par mois. La télévision en clair est en haut à gauche, gratuite et sans engagement. Le Pass Match CANAL+ à 7,99 euros est seul dans la zone payante sans engagement.</desc>
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker>
+        </defs>
+        <!-- quadrants -->
+        <rect x="70" y="30" width="330" height="190" fill="rgba(29,185,84,0.06)"/>
+        <rect x="400" y="30" width="330" height="190" fill="rgba(229,0,0,0.08)"/>
+        <rect x="70" y="220" width="660" height="190" fill="rgba(255,255,255,0.025)"/>
+        <text x="80" y="50" class="ink" font-weight="700" font-size="12">GRATUIT ET SANS ENGAGEMENT</text>
+        <text x="80" y="66" font-size="11">la télé en clair, pour quelques événements</text>
+        <text x="720" y="50" class="ink" font-weight="700" font-size="12" text-anchor="end">PAYANT, SANS ENGAGEMENT</text>
+        <text x="720" y="66" font-size="11" text-anchor="end">l'espace vide : un match seul, personne ne le vend</text>
+        <text x="720" y="400" class="ink" font-weight="700" font-size="12" text-anchor="end">LES ABONNEMENTS</text>
+        <text x="80" y="400" class="ink" font-weight="700" font-size="12">INCLUS DANS UN ABONNEMENT DÉJÀ PAYÉ</text>
+        <!-- axes -->
+        <line x1="70" y1="220" x2="735" y2="220" stroke="#555" stroke-width="1.2" marker-end="url(#arr)"/>
+        <line x1="70" y1="415" x2="70" y2="25" stroke="#555" stroke-width="1.2" marker-end="url(#arr)"/>
+        <text x="400" y="445" text-anchor="middle" class="ink" font-weight="600">Prix payé pour voir un match (€ TTC)</text>
+        <text transform="translate(22,220) rotate(-90)" text-anchor="middle" class="ink" font-weight="600">Engagement demandé au client</text>
+        <text x="60" y="40" text-anchor="end" font-size="10.5">aucun</text>
+        <text x="60" y="410" text-anchor="end" font-size="10.5">abonnement</text>
+        <!-- graduations : X(p) = 70 + p * 26 -->
+        <g font-size="10.5">
+          <line x1="70" y1="220" x2="70" y2="226" stroke="#555"/><text x="70" y="240" text-anchor="middle">0 €</text>
+          <line x1="200" y1="220" x2="200" y2="226" stroke="#555"/><text x="200" y="240" text-anchor="middle">5 €</text>
+          <line x1="330" y1="220" x2="330" y2="226" stroke="#555"/><text x="330" y="240" text-anchor="middle">10 €</text>
+          <line x1="460" y1="220" x2="460" y2="226" stroke="#555"/><text x="460" y="240" text-anchor="middle">15 €</text>
+          <line x1="590" y1="220" x2="590" y2="226" stroke="#555"/><text x="590" y="240" text-anchor="middle">20 €</text>
+          <line x1="720" y1="220" x2="720" y2="226" stroke="#555"/><text x="720" y="240" text-anchor="middle">25 €</text>
+        </g>
+        <!-- en clair : 0 €, aucun engagement -->
+        <g>
+          <circle cx="78" cy="110" r="6" fill="none" stroke="#6fe0a0" stroke-width="2"/><text x="90" y="106" class="ink">France Télévisions</text><text x="90" y="119" font-size="10">Tour de France, Roland-Garros</text>
+          <circle cx="78" cy="160" r="6" fill="none" stroke="#6fe0a0" stroke-width="2"/><text x="90" y="156" class="ink">M6</text><text x="90" y="169" font-size="10">Coupe du monde 2026</text>
+        </g>
+        <!-- notre Pass : 7,99 €, aucun engagement -->
+        <g>
+          <circle cx="278" cy="135" r="22" fill="rgba(229,0,0,0.18)"/>
+          <circle cx="278" cy="135" r="9" fill="#e50000" stroke="#fff" stroke-width="2"/>
+          <text x="300" y="131" fill="#fff" font-weight="800" font-size="13">PASS MATCH CANAL+</text>
+          <text x="300" y="146" fill="#fff" font-size="11">7,99 € le match, sans abonnement</text>
+        </g>
+        <!-- inclus / déjà payé -->
+        <g>
+          <circle cx="76" cy="300" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="88" y="296" class="ink">TF1 via Netflix</text><text x="88" y="309" font-size="10">inclus dans Netflix</text>
+          <circle cx="252" cy="345" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="264" y="341" class="ink">Prime Video</text><text x="264" y="354" font-size="10">Roland-Garros en soirée, 6,99 €</text>
+        </g>
+        <!-- abonnements sport -->
+        <g>
+          <circle cx="252" cy="275" r="6" fill="#fff"/><text x="264" y="271" class="ink">Disney+ (Liga)</text><text x="264" y="284" font-size="10">6,99 €/mois</text>
+          <rect x="324" y="305" width="12" height="12" fill="#fff" transform="rotate(45 330 311)"/><text x="342" y="307" class="ink">Pass Coupes d'Europe CANAL+</text><text x="342" y="320" font-size="10">option à 10 € sur un abonnement CANAL+</text>
+          <circle cx="382" cy="385" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="394" y="381" class="ink">Eurosport via HBO Max</text><text x="394" y="394" font-size="10">11,99 €/mois avec l'option Sport</text>
+          <circle cx="460" cy="262" r="6" fill="#fff"/><text x="472" y="258" class="ink">beIN SPORTS</text><text x="472" y="271" font-size="10">≈ 15 €/mois</text>
+          <circle cx="486" cy="345" r="6" fill="#fff"/><text x="498" y="341" class="ink">DAZN</text><text x="498" y="354" font-size="10">15,99 €/mois</text>
+          <circle cx="720" cy="280" r="6" fill="#fff"/><text x="708" y="276" class="ink" text-anchor="end">Ligue 1+</text><text x="708" y="289" font-size="10" text-anchor="end">24,99 €/mois</text>
+          <circle cx="720" cy="360" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="708" y="356" class="ink" text-anchor="end">RMC Sport</text><text x="708" y="369" font-size="10" text-anchor="end">25 €/mois (UFC)</text>
+        </g>
+      </svg>
+      <div class="legend">
+        <span><em style="background:#fff;border-radius:50%"></em> cercle 1, concurrent direct</span>
+        <span><em style="border:2px solid #8fc6ff;border-radius:50%"></em> cercle 2, indirect</span>
+        <span><em style="border:2px solid #6fe0a0;border-radius:50%"></em> en clair, gratuit</span>
+        <span><em style="background:#fff;transform:rotate(45deg);width:11px;height:11px"></em> option CANAL+ réservée aux abonnés</span>
+        <span><em style="background:#e50000;border-radius:50%"></em> notre Pass</span>
+      </div>
+    </div>
+    <div class="lecture"><p>Tous les acteurs payants vendent du temps (un mois, un an), jamais un match. Le Pass occupe seul la case « payant, sans engagement » : c'est son avantage, et c'est aussi pourquoi aucun prix de marché n'existe pour lui. Il faut le déduire du plafond ci-dessous et le mesurer auprès des clients (onglet 3).</p></div>
+
+    <h3>La santé financière des concurrents</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Acteur</th><th>Santé</th><th>Investissements et stratégie</th><th>Lecture de l'équipe</th></tr></thead>
+      <tbody>
+        <tr><td><strong><a class="src" href="https://www.xerfi.com/etudes-par-entreprise" target="_blank" rel="noopener">beIN SPORTS France</a></strong></td><td>CA 731&nbsp;M€ en 2023, contre 669&nbsp;M€ en 2022 ; bénéfice net 64,5&nbsp;M€</td><td><a class="src" href="https://www.pappers.fr/entreprise/bein-sports-france-539007435" target="_blank" rel="noopener">Les droits pèsent 80&nbsp;% du CA</a> ; ses engagements sur droits futurs passent de 167,5&nbsp;M€ à 41,3&nbsp;M€</td><td>Peut baisser ses prix, mais n'achète plus de gros droits.</td></tr>
+        <tr><td><strong>DAZN</strong><span class="cell-note">groupe, monde</span></td><td><a class="src" href="https://www.sportcal.com/news/dazn-cuts-losses-by-almost-a-third-in-2024-as-revenue-grows-once-again/" target="_blank" rel="noopener">CA 3,19&nbsp;Md$ en 2024</a> (+11&nbsp;%), perte nette 961&nbsp;M$</td><td><a class="src" href="https://www.insideworldfootball.com/2025/10/10/never-ending-stream-blavatnik-pumps-another-587m-dazn/" target="_blank" rel="noopener">587&nbsp;M$ apportés par l'actionnaire Access en 2024</a>, 1&nbsp;Md$ par le fonds saoudien SURJ</td><td>Vit de ses actionnaires : plutôt des hausses de prix que des baisses.</td></tr>
+        <tr><td><strong>Eurosport</strong><span class="cell-note">SIREN 353 735 657</span></td><td><a class="src" href="https://www.xerfi.com/etudes-par-entreprise/eurosport_353735657" target="_blank" rel="noopener">CA 368&nbsp;M€ en 2024</a>, puis 302,3&nbsp;M€ en 2025 (−17,8&nbsp;%) et 149,0&nbsp;M€ de perte</td><td><a class="src" href="https://www.pappers.fr/entreprise/eurosport-353735657" target="_blank" rel="noopener">19,5&nbsp;M€ d'investissements en 2025</a> (comptes sociaux 2025)</td><td>Dépend de CANAL+ et ne peut pas casser les prix.</td></tr>
+        <tr><td><strong>Disney</strong><span class="cell-note">groupe, monde</span></td><td>Pas de comptes publiés pour la plateforme de streaming en France</td><td>Pas de données trouvées</td><td>L'arrivée de la Liga n'a pas fait augmenter le prix des abonnements. Elle peut donc proposer ce service sans impacter son résultat.</td></tr>
+        <tr><td><strong>TBS France</strong><span class="cell-note">Turner Broadcasting System France</span></td><td><a class="src" href="https://www.xerfi.com/etudes-par-entreprise/turner-broadcasting-system-france_428742845" target="_blank" rel="noopener">CA 38&nbsp;M€ en 2024</a>, en baisse depuis l'arrêt du « Pass Warner »</td><td>Idem</td><td>Pas assez de données pour tirer de conclusions.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Le plafond de prix du Pass</h3>
+    <p><strong>Notre règle.</strong> Un spectateur qui ne veut voir qu'un match peut prendre un mois sans engagement chez un concurrent, puis résilier. Le plafond d'un acteur est donc son prix mensuel sans engagement. Les offres avec engagement de 12 ou 24 mois sont exclues.</p>
+    <div class="grid c2">
+      <div class="tbl" style="margin:0"><table>
+        <thead><tr><th>Acteur</th><th class="num">Plafond (mois sans engagement)</th></tr></thead>
+        <tbody>
+          <tr><td><a class="src" href="https://ligue1.com/fr/offres-ligue1plus" target="_blank" rel="noopener">Ligue 1+</a></td><td class="num">24,99&nbsp;€</td></tr>
+          <tr><td><a class="src" href="https://selectra.info/telecom/actualites/marche/ufc-333-rmc-sport-prix-canal-free-samedi-24" target="_blank" rel="noopener">RMC Sport</a></td><td class="num">25&nbsp;€</td></tr>
+          <tr><td><a class="src" href="https://www.echosdunet.net/tv/actualites/dazn-ligue-1-plus-laliga-serie-a-prix-abonnement" target="_blank" rel="noopener">DAZN</a></td><td class="num">15,99&nbsp;€</td></tr>
+          <tr><td><a class="src" href="https://www.echosdunet.net/tv/streaming/bein-sports" target="_blank" rel="noopener">beIN SPORTS</a></td><td class="num">≈ 15&nbsp;€</td></tr>
+          <tr><td><a class="src" href="https://selectra.info/telecom/tv/svod/hbo-max" target="_blank" rel="noopener">HBO Max + option Sport</a></td><td class="num">11,99&nbsp;€</td></tr>
+          <tr class="total"><td><a class="src" href="https://www.echosdunet.net/tv/chaines/tnt/canal-plus" target="_blank" rel="noopener">Pass Coupes d'Europe CANAL+</a></td><td class="num">10&nbsp;€ <span class="muted" style="font-weight:400">(option ajoutée à un abonnement CANAL+)</span></td></tr>
+          <tr><td><a class="src" href="https://www.ariase.com/streaming/actualite/disney-rejoint-les-tarifs-premium-du-streaming-ce-que-l-on-obtient-vraiment-pour-ce-prix" target="_blank" rel="noopener">Disney+ (Liga)</a></td><td class="num">6,99&nbsp;€</td></tr>
+        </tbody>
+      </table></div>
+      <div class="lecture" style="margin:0">
+        <p><strong>Le plafond retenu.</strong></p>
+        <ul>
+          <li><strong>Pour un match que seul CANAL+ diffuse</strong> (Ligue des champions, Premier League, Top 14, F1) : <strong>10&nbsp;€</strong>, le prix du Pass Coupes d'Europe. C'est un plafond prudent : cette option s'ajoute à un abonnement, donc un non-abonné paie en réalité bien plus.</li>
+          <li><strong>Pour un match aussi diffusé ailleurs</strong> : environ 15&nbsp;€ (beIN, DAZN). La Liga sur Disney+ descend à 6,99&nbsp;€, mais CANAL+ ne la diffuse pas.</li>
+          <li><strong>Pour un événement gratuit en clair</strong> (Tour de France, Coupe du monde) : plafond nul.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <h4>Ce que ça change pour le Pass</h4>
+      <p>Le Pass reste plus avantageux qu'un abonnement tant qu'on regarde moins de <strong>n*</strong> matchs par mois, avec n* = prix mensuel ÷ prix du Pass. Face au Pass Coupes d'Europe à 10&nbsp;€ :</p>
+      <ul>
+        <li>Pass à 4,99&nbsp;€ : n* = 2, l'abonnement devient moins cher dès le 3<sup>e</sup> match.</li>
+        <li>Pass à 6,99&nbsp;€ : n* = 1,43.</li>
+        <li>Pass à 7,99&nbsp;€ : n* = 1,25, le Pass ne vaut que pour celui qui ne regarde qu'un match dans le mois : c'est précisément notre cible.</li>
+        <li>Pass à 9,99&nbsp;€ : n* = 1,0, le Pass n'apporte plus rien.</li>
+      </ul>
+      <p>Le Pass doit donc rester nettement sous 10&nbsp;€. Il n'existe aucune offre de match seul chez les concurrents directs.</p>
+    </div>
+
+    <nav class="pager"><a href="#entreprise"><small>Onglet précédent</small>1. L'entreprise et l'offre</a><a href="#prix" class="next"><small>Onglet suivant</small>3. Le prix psychologique</a></nav>
+  </div>
+</section>
+
+<!-- ===================================================================== 3. PRIX PSYCHOLOGIQUE -->
+<section class="panel" id="prix" role="tabpanel" aria-labelledby="tab-prix" hidden>
+  <div class="wrap">
+    <div class="panel-head">
+      <div class="step">Onglet 3</div>
+      <h2>Ce que dit notre mesure : le client accepte de 5,10 à 10&nbsp;€</h2>
+      <p class="lead">Les répondants jugent le Pass acceptable entre 5,10 et 10&nbsp;€, et idéal entre 7 et 8&nbsp;€. La marque CANAL+ ne fait pas accepter un prix significativement plus élevé.</p>
+    </div>
+    <span class="notion">Notion du cours : <b>prix psychologique</b>, méthode de Van Westendorp et <a href="https://prix.iae-mod.fr/seances/seance-cm-2.html" target="_blank" rel="noopener">test A/B (CM 2)</a></span>
+
+    <h3>Le questionnaire</h3>
+    <p>Nous avons construit un questionnaire en ligne, que nous avons diffusé nous-mêmes autour de nous : <a class="src" href="https://pexi58.github.io/questionnaire-pass-sport/" target="_blank" rel="noopener">pexi58.github.io/questionnaire-pass-sport</a>. Il se remplit en trois minutes et suit quatre parties.</p>
+    <div class="grid c2">
+      <div class="card">
+        <h4>Le déroulé</h4>
+        <ol>
+          <li><strong>Habitudes de sport</strong> : fréquence, sports regardés (football, F1, rugby, tennis, MotoGP, basket), abonnements actuels et passés (CANAL+, Prime Video, beIN, Ligue 1+, DAZN, IPTV…).</li>
+          <li><strong>L'offre</strong> : le Pass Match est présenté au répondant, avec ou sans la marque (voir le test A/B).</li>
+          <li><strong>Le prix</strong> : l'intention d'achat (oui / non), puis les quatre questions de Van Westendorp : à partir de quel prix le Pass est « trop bon marché pour être sérieux », « bon marché », « cher », « trop cher ».</li>
+          <li><strong>Le profil</strong> : âge, situation, genre, et une question de contrôle d'attention.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h4>Le test : un test A/B sur la marque</h4>
+        <p>Nous avons montré le même Pass à deux groupes tirés au sort : avec le logo CANAL+ (<strong>version A</strong>) ou sans marque (<strong>version B</strong>). Tout le reste est identique. C'est le principe du test A/B : une seule différence, et le hasard qui répartit les répondants.</p>
+        <p>Nous avons testé la marque parce qu'elle change la qualité perçue sans toucher au produit (<a class="src" href="https://doi.org/10.1177/002224378902600309" target="_blank" rel="noopener">Rao et Monroe, 1989</a>).</p>
+        <p>Nous avons mesuré deux choses : le prix que le client juge acceptable (Van Westendorp) et son intention d'acheter le Pass.</p>
+      </div>
+    </div>
+
+    <h3>Qui a répondu</h3>
+    <p>Nous avons reçu <strong>148 réponses</strong> et en avons gardé <strong>121</strong>. Nous avons retiré 10 doublons et 17 réponses de moins de 18 ans, hors de notre cible.</p>
+    <div class="tbl"><table>
+      <thead><tr><th></th><th>Version A : avec CANAL+ (54)</th><th>Version B : sans marque (67)</th></tr></thead>
+      <tbody>
+        <tr><td>Âge moyen</td><td>31,1 ans (18 à 70)</td><td>31,3 ans (18 à 92)</td></tr>
+        <tr><td>Genre</td><td>34 hommes, 20 femmes</td><td>33 hommes, 31 femmes, 3 ne se prononcent pas</td></tr>
+        <tr><td>Situation</td><td>26 actifs, 21 étudiants, 4 retraités, 1 sans emploi, 2 autres</td><td>31 actifs, 26 étudiants, 6 retraités, 2 sans emploi, 2 autres</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted small">Source : questionnaire du groupe, après nettoyage.</p>
+    <p><strong>Les deux groupes sont comparables.</strong> Même âge (p = 0,951), même répartition (p = 0,133) et même fréquence de sport regardé (p = 0,743). Le tirage au sort a fonctionné : la seule différence entre les groupes est la marque.</p>
+
+    <h3>Le prix accepté, avec et sans la marque (Van Westendorp)</h3>
+    <p>Chaque répondant a dit à partir de quel prix il trouve le Pass « trop bon marché », « bon marché », « cher » et « trop cher ». Le schéma cumule ces réponses : pour chaque prix, la part des répondants qui le jugent ainsi. Les croisements des courbes donnent les bornes.</p>
+    <div class="chart" id="vw">
+      <div class="chart-head">
+        <h4 id="vw-titre">Courbes de Van Westendorp, 121 répondants</h4>
+        <div class="seg" role="group" aria-label="Choisir le groupe affiché">
+          <button type="button" data-groupe="tous" aria-pressed="true">Tous (121)</button>
+          <button type="button" data-groupe="A" aria-pressed="false">A : avec CANAL+ (54)</button>
+          <button type="button" data-groupe="B" aria-pressed="false">B : sans marque (67)</button>
+        </div>
+      </div>
+      <div id="vw-svg"></div>
+      <div class="legend">
+        <span style="color:var(--c-tbm)"><i class="dash"></i><span style="color:var(--text-2)">trop bon marché</span></span>
+        <span style="color:var(--c-bm)"><i></i><span style="color:var(--text-2)">bon marché</span></span>
+        <span style="color:var(--c-ch)"><i></i><span style="color:var(--text-2)">cher</span></span>
+        <span style="color:var(--c-tc)"><i class="dash"></i><span style="color:var(--text-2)">trop cher</span></span>
+        <span><em style="background:var(--zone-opt)"></em>zone optimale (OPP à IPP)</span>
+        <span><em style="background:var(--zone)"></em>zone acceptable (PMC à PME)</span>
+        <span><i style="border-top:2px dashed #fff;width:18px"></i>7,99&nbsp;€, le prix retenu</span>
+      </div>
+      <div class="readout" id="vw-readout"></div>
+    </div>
+    <div class="tbl"><table id="vw-table">
+      <thead><tr><th>Groupe</th><th class="num">n</th><th class="num">PMC</th><th class="num">OPP</th><th class="num">IPP</th><th class="num">PME</th><th>Zone acceptable</th><th>Zone optimale</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+    <details>
+      <summary>Comment les bornes sont calculées</summary>
+      <div class="inner">
+        <ul>
+          <li><strong>PMC</strong>, point marginal de bon marché : croisement de « trop bon marché » et « cher ». En dessous, le Pass paraît trop bon marché pour être sérieux.</li>
+          <li><strong>OPP</strong>, prix optimal : croisement de « trop bon marché » et « trop cher », le prix qui fait le moins de rejets.</li>
+          <li><strong>IPP</strong>, prix d'indifférence : croisement de « bon marché » et « cher », le prix perçu comme normal.</li>
+          <li><strong>PME</strong>, point marginal de cherté : croisement de « bon marché » et « trop cher ». Au-dessus, trop de gens le trouvent trop cher.</li>
+        </ul>
+        <p>La <strong>zone acceptable</strong> va du PMC au PME ; la <strong>zone optimale</strong>, plus étroite, de l'OPP à l'IPP. Les courbes sont calculées sur une grille de 400 prix de 0&nbsp;€ au 97<sup>e</sup> centile des réponses « trop cher », la même pour les deux versions, avec le code du cours (<a href="https://github.com/VincentFavarin/analyse-projet-prix" target="_blank" rel="noopener">squelette d'analyse</a>). Le schéma ci-dessus est tracé dans la page à partir des 121 réponses nettoyées ; le détail et les tests statistiques sont dans notre <a href="analyse.html">tableau de bord d'analyse</a>.</p>
+      </div>
+    </details>
+    <div class="lecture">
+      <ul>
+        <li>Sous 5,10&nbsp;€, le Pass paraît trop bon marché pour être sérieux.</li>
+        <li>Entre 7 et 8&nbsp;€, peu de gens le trouvent trop bon marché ou trop cher : c'est la zone la plus confortable.</li>
+        <li>Au-dessus de 10&nbsp;€, trop de gens le trouvent trop cher.</li>
+      </ul>
+      <p>Les zones acceptables des deux versions se recouvrent presque entièrement. La zone optimale semble plus haute avec la marque, mais cet écart n'a pas été testé statistiquement : on ne peut pas conclure que la marque fait accepter un prix plus élevé. Le prix de 7,99&nbsp;€ est dans la zone acceptable des deux versions.</p>
+    </div>
+
+    <h3>L'intention d'achat, avec et sans la marque</h3>
+    <div class="kpis">
+      <div class="kpi"><div class="v">30&nbsp;%</div><div class="l">Version A, avec CANAL+</div><div class="f">16 répondants sur 54</div></div>
+      <div class="kpi"><div class="v">46&nbsp;%</div><div class="l">Version B, sans marque</div><div class="f">31 répondants sur 67</div></div>
+      <div class="kpi"><div class="v">39&nbsp;%</div><div class="l">Ensemble des 121 répondants</div><div class="f">(30&nbsp;% × 54 + 46&nbsp;% × 67) ÷ 121</div></div>
+    </div>
+    <p>30&nbsp;% des répondants de la version A veulent acheter le Pass, contre 46&nbsp;% en version B. Sur 121 répondants, cet écart peut venir du hasard : on ne peut pas conclure que la marque freine l'achat, ni qu'elle ne change rien. Il faudrait interroger plus de monde.</p>
+
+    <div class="callout">
+      <h4>Ce que nos réponses permettent de conclure</h4>
+      <ul>
+        <li><strong>Oui :</strong> un prix entre 5,10 et 10&nbsp;€ est acceptable pour les répondants, avec ou sans la marque, et 7 à 8&nbsp;€ est la zone la plus confortable.</li>
+        <li><strong>Non :</strong> nous ne pouvons pas dire que la marque fait payer plus, ni qu'elle décourage l'achat.</li>
+        <li><strong>Avec prudence :</strong> l'échantillon est plutôt jeune et proche de nous, et les gens déclarent plus qu'ils n'achètent vraiment (<a href="https://prix.iae-mod.fr/seances/seance-cm-2.html" target="_blank" rel="noopener">cours : biais du déclaratif</a>). La part réelle d'acheteurs sera plus basse.</li>
+        <li><strong>Ce que nous ne mesurons pas :</strong> combien de personnes achètent à chaque prix. Notre prévision de ventes (onglet 5) part donc de l'intention d'achat.</li>
+      </ul>
+    </div>
+
+    <nav class="pager"><a href="#concurrents"><small>Onglet précédent</small>2. Les concurrents</a><a href="#budget" class="next"><small>Onglet suivant</small>4. Le budget</a></nav>
+  </div>
+</section>
+
+<!-- ===================================================================== 4. BUDGET -->
+<section class="panel" id="budget" role="tabpanel" aria-labelledby="tab-budget" hidden>
+  <div class="wrap">
+    <div class="panel-head">
+      <div class="step">Onglet 4</div>
+      <h2>Le budget : ce que coûte un Pass, ce que coûte le lancement</h2>
+      <p class="lead">Un Pass vendu 7,99&nbsp;€ coûte 0,83&nbsp;€ à produire et laisse 6,44&nbsp;€ de contribution. Le lancement coûte entre 370&nbsp;970 et 546&nbsp;387&nbsp;€ ; nous retenons la borne haute. Il faut vendre 84&nbsp;882 Pass sur la saison pour le rembourser.</p>
+    </div>
+    <span class="notion">Notions du cours : <b>coûts variables et coûts fixes</b>, contribution marginale, CAC et CLV, <a href="https://prix.iae-mod.fr/seances/seance-td-2.html" target="_blank" rel="noopener">seuil de rentabilité (TD 2)</a></span>
+
+    <h3>Ce que coûte chaque Pass vendu : 0,83&nbsp;€</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Poste</th><th class="num">Montant</th><th>Construction du calcul et source</th></tr></thead>
+      <tbody>
+        <tr><td>Prix payé par le client</td><td class="num price">7,99&nbsp;€ TTC</td><td>Prix retenu (onglet 5)</td></tr>
+        <tr><td>TVA</td><td class="num">0,73&nbsp;€</td><td><a class="src" href="https://bofip.impots.gouv.fr/bofip/1013-PGP.html/identifiant%3DBOI-TVA-LIQ-30-20-100-20150401" target="_blank" rel="noopener">Taux réduit de 10&nbsp;%</a>, qui vaut aussi pour la télévision payée à la séance : 7,99 − 7,99 ÷ 1,10</td></tr>
+        <tr><td>Recette hors taxes</td><td class="num">7,26&nbsp;€</td><td>7,99 ÷ 1,10 = 7,2636</td></tr>
+        <tr><td>Paiement par carte</td><td class="num">0,37&nbsp;€</td><td>Référence de prix, pas de fournisseur réel : <a class="src" href="https://www.leptidigital.fr/logiciels/stripe/" target="_blank" rel="noopener">tarif public Stripe</a> pour une carte européenne, 1,5&nbsp;% × 7,99 + 0,25&nbsp;€ = 0,3699</td></tr>
+        <tr><td>Diffusion du match</td><td class="num">0,46&nbsp;€</td><td>Hypothèse également : <a class="src" href="https://selectra.info/telecom/actualites/marche/combien-de-go-consomme-un-film-streaming-forfait" target="_blank" rel="noopener">2&nbsp;h × 3&nbsp;Go par heure en HD</a> = 6&nbsp;Go × <a class="src" href="https://aws.amazon.com/fr/cloudfront/pricing/pay-as-you-go/" target="_blank" rel="noopener">0,085&nbsp;$ le Go</a> = 0,51&nbsp;$, converti à 0,90&nbsp;€ le dollar (taux de référence BCE du 6 novembre 2026 : 1&nbsp;€ = 1,1165&nbsp;$) = 0,4568. Hypothèse haute : CANAL+ a ses propres serveurs.</td></tr>
+        <tr><td>Droits du match</td><td class="num">0&nbsp;€</td><td>Payés à forfait aux ligues, quel que soit le nombre de spectateurs : c'est un coût déjà engagé, inclus dans les 3&nbsp;896&nbsp;M€ de coûts de contenus du groupe en 2024 (onglet 1).</td></tr>
+        <tr class="total"><td>Coût variable total</td><td class="num">0,83&nbsp;€</td><td>0,37 + 0,46</td></tr>
+        <tr class="total"><td>Contribution marginale</td><td class="num pos">6,44&nbsp;€</td><td>7,26 − 0,37 − 0,46 (calcul exact : 7,2636 − 0,3699 − 0,4568 = 6,437) ; taux de contribution 6,44 ÷ 7,26 = 89&nbsp;%</td></tr>
+      </tbody>
+    </table></div>
+    <div class="grid c2">
+      <div class="card">
+        <h4>Ce que coûte la variation : rien</h4>
+        <p>CANAL+ possède déjà sa marque et son application. La version A n'ajoute aucun coût, ni par Pass ni au total. C'est plutôt la version B qui coûterait : vendre sans marque obligerait à créer une marque à part.</p>
+      </div>
+      <div class="card">
+        <h4>Si la TVA passait à 20&nbsp;%</h4>
+        <p>Le taux de 10&nbsp;% suppose un Pass limité au direct. S'il inclut un replay au-delà d'un mois, <a class="src" href="https://www.legifiscal.fr/tva/tva-regles-declarations/taux-tva-applicable-abonnements-services-television.html" target="_blank" rel="noopener">l'offre passe à 20&nbsp;%</a> : la recette hors taxes tombe à 6,66&nbsp;€ (7,99 ÷ 1,20) et la contribution à 5,83&nbsp;€.</p>
+      </div>
+    </div>
+
+    <h3>Les coûts fixes : une fourchette, une source par borne</h3>
+    <span class="notion">Notion du cours : <b>« quand un chiffre n'existe nulle part, on écrit une fourchette, avec une source pour chaque borne »</b></span>
+    <p>Le lancement du Pass coûte entre <strong>370&nbsp;970&nbsp;€</strong> et <strong>546&nbsp;387&nbsp;€</strong>. Nous retenons la borne haute par prudence.</p>
+    <div class="bar" aria-hidden="true">
+      <div style="width:25.7%;background:#4da6ff" title="Équipe produit 140 167 €"></div>
+      <div style="width:13.3%;background:#8fc6ff" title="Media buyer 72 500 €"></div>
+      <div style="width:61%;background:#e50000" title="Campagne publicitaire 333 720 €"></div>
+    </div>
+    <div class="bar-legend"><span><em style="background:#4da6ff"></em>Équipe produit 140&nbsp;167&nbsp;€ (26&nbsp;%)</span><span><em style="background:#8fc6ff"></em>Media buyer 72&nbsp;500&nbsp;€ (13&nbsp;%)</span><span><em style="background:#e50000"></em>Campagne publicitaire 333&nbsp;720&nbsp;€ (61&nbsp;%)</span></div>
+
+    <div class="tbl"><table>
+      <thead><tr><th>Poste</th><th class="num">Bas</th><th class="num">Central</th><th class="num">Haut</th></tr></thead>
+      <tbody>
+        <tr><td>1. Équipe produit</td><td class="num">113&nbsp;600&nbsp;€</td><td class="num">131&nbsp;083&nbsp;€</td><td class="num">140&nbsp;167&nbsp;€</td></tr>
+        <tr><td>2. Media buyer</td><td class="num">53&nbsp;250&nbsp;€</td><td class="num">62&nbsp;563&nbsp;€</td><td class="num">72&nbsp;500&nbsp;€</td></tr>
+        <tr><td>3. Campagne publicitaire</td><td class="num">204&nbsp;120&nbsp;€</td><td class="num">268&nbsp;920&nbsp;€</td><td class="num">333&nbsp;720&nbsp;€</td></tr>
+        <tr class="total"><td>Total</td><td class="num">370&nbsp;970&nbsp;€</td><td class="num">462&nbsp;566&nbsp;€</td><td class="num">546&nbsp;387&nbsp;€</td></tr>
+      </tbody>
+    </table></div>
+
+    <details open>
+      <summary>1. Équipe produit : 113&nbsp;600 à 140&nbsp;167&nbsp;€ (central : 131&nbsp;083&nbsp;€)</summary>
+      <div class="inner">
+        <ul>
+          <li>5 personnes, une par tâche à construire : développeur serveur, développeur web, développeur mobile, testeur, chef de projet. Une petite équipe suffit, car CANAL+ vend déjà <a class="src" href="https://www.echosdunet.net/tv/chaines/tnt/canal-plus" target="_blank" rel="noopener">des options</a> dans son application : les comptes clients et le paiement existent déjà.</li>
+          <li><a class="src" href="https://salaireclair.fr/blog/salaire-developpeur-2026" target="_blank" rel="noopener">Salaire d'un développeur confirmé à Paris</a> : 48&nbsp;000 à 58&nbsp;000&nbsp;€ brut par an. <a class="src" href="https://moicombien.fr/blog/cotisations-patronales-2026-taux-detaille-employeur" target="_blank" rel="noopener">Charges patronales d'un cadre</a> : 42 à 45&nbsp;%.</li>
+          <li>Durée : 4 mois, définie par rétroplanning depuis la première journée de Ligue des champions (<a class="src" href="https://fr.uefa.com/uefachampionsleague/news/02a6-20d584717aaf-99d502ed4fd2-1000--ligue-des-champions-2026-27-engages-dates-tirages-formule-f/" target="_blank" rel="noopener">8 au 10 septembre en 2026-2027</a>). Cela donne 3 mois de développement, puis 1 mois de test en août sur la Premier League.</li>
+          <li>Bas : <code>5 × 4 × (48 000 × 1,42 ÷ 12) = 5 × 4 × 5 680 = 113 600 €</code></li>
+          <li>Central : <code>5 × 4 × (55 000 × 1,43 ÷ 12) = 5 × 4 × 6 554 = 131 083 €</code></li>
+          <li>Haut : <code>5 × 4 × (58 000 × 1,45 ÷ 12) = 5 × 4 × 7 008 = 140 167 €</code></li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>2. Media buyer : 53&nbsp;250 à 72&nbsp;500&nbsp;€ (central : 62&nbsp;563&nbsp;€)</summary>
+      <div class="inner">
+        <ul>
+          <li>Une personne qui choisit les canaux, achète l'espace publicitaire et suit le coût d'acquisition.</li>
+          <li><a class="src" href="https://www.licornesociety.com/metiers-startup/media-buyer" target="_blank" rel="noopener">Salaire d'un profil confirmé à Paris</a> : 45&nbsp;000 à 60&nbsp;000&nbsp;€ brut par an. Durée : 10 mois (1 mois de préparation et 9 mois de campagne).</li>
+          <li>Bas : <code>10 × (45 000 × 1,42 ÷ 12) = 53 250 €</code> · Central : <code>10 × (52 500 × 1,43 ÷ 12) = 62 563 €</code> · Haut : <code>10 × (60 000 × 1,45 ÷ 12) = 72 500 €</code></li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>3. Campagne publicitaire : 204&nbsp;120 à 333&nbsp;720&nbsp;€ (central : 268&nbsp;920&nbsp;€)</summary>
+      <div class="inner">
+        <ul>
+          <li>On ne peut pas cibler « les pirates » sur une plateforme publicitaire. On cible donc leur profil : <a class="src" href="https://www.arcom.fr/sites/default/files/2025-05/Arcom-La-consommation-illicite-de-programmes-sportifs-en-2024-resultats-detailles_0.pdf" target="_blank" rel="noopener">selon l'Arcom</a>, 58&nbsp;% d'hommes, 35 ans en moyenne (58&nbsp;% ont moins de 35 ans). On vise aussi les fans de football, avant chaque grand match.</li>
+          <li>Volume : 900&nbsp;000 personnes (onglet 2, utilisateurs d'IPTV) × 1 publicité par semaine × 36 semaines = <strong>32,4 millions d'affichages</strong>.</li>
+          <li><a class="src" href="https://blog.iambeezy.app/fr/cpm-publicite-digitale-france-2026-benchmarks-secteur-optimisation/" target="_blank" rel="noopener">Plan média</a> (hypothèse de l'équipe) : Instagram et Facebook 60&nbsp;%, CPM de 8 à 12&nbsp;€, pour la cible principale des hommes de 25 à 44 ans ; TikTok 30&nbsp;%, CPM de 4 à 8&nbsp;€, moins cher et touche les fans plus jeunes ; Snapchat 10&nbsp;%, CPM de 3 à 7&nbsp;€, en complément pour les 18-25 ans ; écrans de CANAL+ (application, chaînes, réseaux sociaux) : 0&nbsp;€ décaissé.</li>
+          <li>CPM moyen pondéré : bas <code>0,6 × 8 + 0,3 × 4 + 0,1 × 3 = 6,30 €</code>, haut <code>0,6 × 12 + 0,3 × 8 + 0,1 × 7 = 10,30 €</code>, central 8,30&nbsp;€. Le CPM est le coût pour mille affichages.</li>
+          <li>Bas : <code>32 400 × 6,30 = 204 120 €</code> · Central : <code>32 400 × 8,30 = 268 920 €</code> · Haut : <code>32 400 × 10,30 = 333 720 €</code></li>
+        </ul>
+      </div>
+    </details>
+    <details>
+      <summary>4. Total et marge pour imprévus</summary>
+      <div class="inner">
+        <ul>
+          <li>Imprévus = borne haute − central = 546&nbsp;387 − 462&nbsp;566 = <strong>83&nbsp;821&nbsp;€</strong>, soit 18&nbsp;% du central. Cette marge vient de la fourchette, pas d'un pourcentage choisi au hasard.</li>
+          <li><strong>Budget retenu : 546&nbsp;387&nbsp;€.</strong> Le budget est une enveloppe décidée à l'avance, et la prudence veut qu'on retienne le haut de la fourchette.</li>
+        </ul>
+      </div>
+    </details>
+
+    <h3>La campagne se juge au coût d'acquisition</h3>
+    <p class="quote">« Une ligne de budget qui se juge au coût d'acquisition, pas au nombre de vues. »</p>
+    <div class="grid c2">
+      <div class="card">
+        <h4>CAC : coût d'acquisition</h4>
+        <p>CAC = dépense marketing ÷ clients gagnés. Nous prévoyons 121&nbsp;500 Pass sur la saison, soit 13&nbsp;500 par mois (onglet 5, le scénario prévu).</p>
+        <ul>
+          <li>Si chaque Pass est acheté par un client différent : <code>333 720 ÷ 121 500 = <strong>2,75&nbsp;€</strong> par Pass</code>.</li>
+          <li>Si les mêmes 13&nbsp;500 clients achètent tous les mois : <code>333 720 ÷ 13 500 = <strong>24,72&nbsp;€</strong> par client</code>.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>CLV : ce qu'un client rapporte</h4>
+        <p>Un Pass rapporte 6,44&nbsp;€ de contribution, et un client fidèle <code>9 × 6,44 = <strong>57,93&nbsp;€</strong></code> sur la saison (sa valeur client).</p>
+        <p>Dans les deux cas, la campagne rapporte <strong>2,3 fois</strong> ce qu'elle coûte : 6,44 ÷ 2,75 = 2,3 et 57,93 ÷ 24,72 = 2,3.</p>
+      </div>
+    </div>
+
+    <h3>Les indicateurs du Pass à 7,99&nbsp;€</h3>
+    <p>Formules du seuil de rentabilité, avec la contribution calculée plus haut (6,44&nbsp;€, calcul exact 6,437&nbsp;€) et les coûts fixes retenus (546&nbsp;387&nbsp;€, borne haute).</p>
+    <div class="kpis">
+      <div class="kpi"><div class="v">84&nbsp;882</div><div class="l">Pass sur la saison</div><div class="f">seuil de rentabilité en volume</div></div>
+      <div class="kpi"><div class="v">9&nbsp;431</div><div class="l">Pass par mois</div><div class="f">sur 9 mois de compétition</div></div>
+      <div class="kpi"><div class="v">616&nbsp;553&nbsp;€</div><div class="l">Chiffre d'affaires HT au seuil</div><div class="f">546&nbsp;387 ÷ 89&nbsp;%</div></div>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Indicateur</th><th>Calcul</th><th class="num">Résultat</th></tr></thead>
+      <tbody>
+        <tr><td>Contribution marginale</td><td>7,26 − 0,37 − 0,46</td><td class="num">6,44&nbsp;€ par Pass</td></tr>
+        <tr><td>Taux de contribution</td><td>6,44 ÷ 7,26</td><td class="num">89&nbsp;%</td></tr>
+        <tr><td>Seuil de rentabilité en volume</td><td>546&nbsp;387 ÷ 6,44</td><td class="num">84&nbsp;882 Pass sur la saison</td></tr>
+        <tr><td>Seuil par mois</td><td>84&nbsp;882 ÷ 9 mois de compétition (septembre à mai)</td><td class="num">9&nbsp;431 Pass par mois</td></tr>
+        <tr><td>Seuil en chiffre d'affaires</td><td>546&nbsp;387 ÷ 89&nbsp;%</td><td class="num">616&nbsp;553&nbsp;€ HT</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout">
+      <h4>Si on nous objecte que c'est sous-estimé</h4>
+      <ul>
+        <li>Une personne de plus dans l'équipe coûte environ 26&nbsp;000&nbsp;€ (6&nbsp;554&nbsp;€ × 4 mois).</li>
+        <li>Si les coûts fixes doublent (1&nbsp;092&nbsp;773&nbsp;€), la saison devient déficitaire : 121&nbsp;500 × 6,44 − 1&nbsp;092&nbsp;773 = −310&nbsp;678&nbsp;€.</li>
+        <li>Point de rupture : avec les ventes prévues (121&nbsp;500 Pass), les coûts fixes peuvent monter jusqu'à 782&nbsp;096&nbsp;€ (121&nbsp;500 × 6,437) avant que le Pass perde de l'argent, soit <strong>43&nbsp;% de plus</strong> que le budget retenu.</li>
+      </ul>
+      <p class="quote" style="margin-bottom:0">À l'oral, en une phrase : « 546&nbsp;000&nbsp;€, c'est une équipe de 5 personnes pendant 4 mois, un media buyer pendant la saison et une campagne d'une publicité par semaine auprès des 900&nbsp;000 utilisateurs d'IPTV. Nous avons pris le haut de chaque fourchette, et ce budget peut encore monter de 43&nbsp;% avant que le Pass perde de l'argent. »</p>
+    </div>
+
+    <nav class="pager"><a href="#prix"><small>Onglet précédent</small>3. Le prix psychologique</a><a href="#proposition" class="next"><small>Onglet suivant</small>5. La proposition</a></nav>
+  </div>
+</section>
+
+<!-- ===================================================================== 5. PROPOSITION -->
+<section class="panel" id="proposition" role="tabpanel" aria-labelledby="tab-proposition" hidden>
+  <div class="wrap">
+    <div class="panel-head">
+      <div class="step">Onglet 5</div>
+      <h2>Notre proposition : 7,99&nbsp;€, à condition d'exclure les abonnés</h2>
+      <p class="lead">Nous recommandons 7,99&nbsp;€ TTC. Ce prix est dans la zone que le client juge acceptable, sous le plafond des concurrents et très au-dessus de nos coûts. Le Pass reste rentable avec nos hypothèses, mais il ne résiste ni à une forte baisse des ventes, ni à la perte d'environ 1&nbsp;100 abonnés.</p>
+    </div>
+    <span class="notion">Notion du cours : <a href="https://prix.iae-mod.fr/seances/seance-cm-1.html" target="_blank" rel="noopener"><b>les trois logiques de prix</b> (CM 1)</a> : coûts = plancher, concurrence = plafond, valeur perçue = où se placer</span>
+
+    <h3>Pourquoi 7,99&nbsp;€ : les trois logiques de prix</h3>
+    <p>Le cours fixe l'ordre : la concurrence donne le plafond, la valeur perçue dit où se placer en dessous, le coût sert à vérifier qu'on tient.</p>
+    <div class="chart" id="echelle">
+      <svg viewBox="0 0 760 200" role="img" aria-labelledby="ech-title">
+        <title id="ech-title">Échelle des prix : du plancher de coût à 0,91 euro au plafond de 10 euros, avec le prix retenu de 7,99 euros</title>
+        <!-- X(p) = 40 + p * 27 ; 0 → 40, 26 → 742 -->
+        <rect x="177.7" y="78" width="132.3" height="44" fill="var(--zone)"/>
+        <rect x="229" y="78" width="27" height="44" fill="var(--zone-opt)"/>
+        <line x1="40" y1="122" x2="745" y2="122" class="axis"/>
+        <g font-size="10.5">
+          <line x1="40" y1="122" x2="40" y2="128" class="axis"/><text x="40" y="142" text-anchor="middle">0 €</text>
+          <line x1="175" y1="122" x2="175" y2="128" class="axis"/><text x="175" y="142" text-anchor="middle">5 €</text>
+          <line x1="310" y1="122" x2="310" y2="128" class="axis"/><text x="310" y="142" text-anchor="middle">10 €</text>
+          <line x1="445" y1="122" x2="445" y2="128" class="axis"/><text x="445" y="142" text-anchor="middle">15 €</text>
+          <line x1="580" y1="122" x2="580" y2="128" class="axis"/><text x="580" y="142" text-anchor="middle">20 €</text>
+          <line x1="715" y1="122" x2="715" y2="128" class="axis"/><text x="715" y="142" text-anchor="middle">25 €</text>
+        </g>
+        <!-- plancher 0,91 -->
+        <line x1="64.6" y1="70" x2="64.6" y2="122" stroke="#1db954" stroke-width="2"/>
+        <text x="64.6" y="60" text-anchor="middle" fill="#6fe0a0" font-weight="700">Plancher 0,91 €</text>
+        <text x="64.6" y="165" text-anchor="middle" font-size="10">coût variable TTC</text>
+        <!-- zone acceptable / optimale -->
+        <text x="244" y="36" text-anchor="middle" class="ink" font-size="10.5">zone acceptable 5,10 à 10 €</text>
+        <text x="242.5" y="100" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">7 à 8 €</text>
+        <!-- prix retenu 7,99 -->
+        <line x1="255.7" y1="48" x2="255.7" y2="128" stroke="#e50000" stroke-width="3"/>
+        <circle cx="255.7" cy="48" r="5" fill="#e50000"/>
+        <text x="262" y="52" fill="#fff" font-weight="800" font-size="13">7,99 €</text>
+        <text x="255.7" y="165" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700">prix retenu</text>
+        <text x="255.7" y="179" text-anchor="middle" font-size="10">n* = 1,25 match par mois</text>
+        <!-- plafond 10 -->
+        <line x1="310" y1="60" x2="310" y2="122" stroke="#fff" stroke-width="2" stroke-dasharray="4 3"/>
+        <text x="316" y="66" class="ink" font-weight="700">Plafond 10 €</text>
+        <text x="316" y="80" font-size="10">Pass Coupes d'Europe CANAL+, un mois</text>
+        <!-- concurrents : un mois sans engagement, étiquettes sous l'axe -->
+        <text x="540" y="100" text-anchor="middle" font-size="10" class="ink">un mois sans engagement chez les concurrents</text>
+        <g font-size="10">
+          <circle cx="363.7" cy="122" r="4" fill="#bbb"/><text x="363.7" y="165" text-anchor="middle">HBO Max 11,99</text>
+          <circle cx="445" cy="122" r="4" fill="#bbb"/><text x="445" y="165" text-anchor="middle">beIN ≈ 15</text>
+          <circle cx="471.7" cy="122" r="4" fill="#bbb"/><text x="480" y="179" text-anchor="middle">DAZN 15,99</text>
+          <circle cx="714.7" cy="122" r="4" fill="#bbb"/><text x="700" y="165" text-anchor="middle">Ligue 1+ 24,99</text>
+          <circle cx="715" cy="122" r="4" fill="#bbb"/><text x="715" y="179" text-anchor="middle">RMC Sport 25</text>
+        </g>
+      </svg>
+    </div>
+    <div class="grid c3">
+      <div class="card"><h4>La concurrence : le plafond</h4><div class="big">10&nbsp;€</div><p>Le prix du Pass Coupes d'Europe (onglet 2). 7,99&nbsp;€ reste en dessous, et loin des 15 à 15,99&nbsp;€ d'un mois chez beIN ou DAZN.</p></div>
+      <div class="card"><h4>La valeur perçue : où se placer</h4><div class="big">7 à 8&nbsp;€</div><p>7,99&nbsp;€ est dans la zone acceptable des deux versions (5,10 à 10&nbsp;€) et en haut de la zone la plus confortable (onglet 3).</p></div>
+      <div class="card"><h4>Les coûts : le plancher</h4><div class="big">0,91&nbsp;€</div><p>0,83&nbsp;€ HT par Pass, soit 0,91&nbsp;€ TTC (onglet 4). Chaque Pass vendu au-dessus rapporte.</p></div>
+    </div>
+    <div class="grid c2">
+      <div class="card">
+        <h4>Le prix psychologique</h4>
+        <p>7,99&nbsp;€ reste sous le seuil des 8&nbsp;€. C'est l'<a href="https://prix.iae-mod.fr/seances/seance-cm-1.html" target="_blank" rel="noopener">effet de seuil vu en cours</a> : le premier chiffre lu fait paraître le prix dans la tranche inférieure.</p>
+      </div>
+      <div class="card">
+        <h4>La variation ne se paie pas en prix, mais elle ne coûte rien</h4>
+        <p>La marque ne fait pas accepter un prix plus élevé (onglet 3). Comme elle ne coûte rien à CANAL+, nous la gardons : c'est son produit et ses droits.</p>
+      </div>
+    </div>
+
+    <h3>Le scénario prévu, construit pas à pas</h3>
+    <p class="muted small">Hypothèses de l'équipe.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Étape</th><th>Calcul</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>Public visé</td><td class="nowrap">≈ 900&nbsp;000 personnes</td><td>Utilisateurs d'IPTV : 12&nbsp;% des 7,7 millions de pirates (<a class="src" href="https://next.ink/230400/piratage-larcom-revendique-le-blocage-de-plus-de-15-000-noms-de-domaine-depuis-2022/" target="_blank" rel="noopener">bilan Arcom 2025</a>)</td></tr>
+        <tr><td>Ont l'intention d'acheter le Pass</td><td class="nowrap">900&nbsp;000 × 30&nbsp;% = 270&nbsp;000</td><td>Intention d'achat en version A, avec la marque CANAL+ (onglet 3)</td></tr>
+        <tr><td>Achètent vraiment, chaque mois</td><td class="nowrap">270&nbsp;000 × 5&nbsp;% = 13&nbsp;500</td><td>Hypothèse : on déclare plus qu'on n'achète (biais du déclaratif)</td></tr>
+        <tr><td>Sur la saison</td><td class="nowrap">13&nbsp;500 × 9 mois = 121&nbsp;500 Pass</td><td>1,4 fois le seuil de rentabilité</td></tr>
+        <tr class="total"><td>Résultat de la saison</td><td class="nowrap">121&nbsp;500 × 6,44 − 546&nbsp;387</td><td class="pos">+235&nbsp;709&nbsp;€</td></tr>
+      </tbody>
+    </table></div>
+    <ul>
+      <li><strong>Pourquoi 30&nbsp;% et pas 39&nbsp;%</strong> : le Pass sera vendu avec la marque CANAL+. Nous prenons donc l'intention d'achat de la version A, la plus basse. Avec 39&nbsp;% (tous les répondants), on obtiendrait environ 157&nbsp;000 Pass.</li>
+      <li><strong>Pourquoi 5&nbsp;%</strong> : parmi les pirates de sport bloqués, 15&nbsp;% ont ensuite souscrit une offre légale (<a class="src" href="https://www.arcom.fr/sites/default/files/2022-10/Impact%20du%20blocage%20des%20services%20illicites%20de%20sport%20-%20Rapport%20d'%C3%A9tude%20quantitative.pdf" target="_blank" rel="noopener">Arcom et Médiamétrie, 2022, p. 24</a>). Notre taux est trois fois plus bas, donc prudent.</li>
+    </ul>
+
+    <h3>Le stress test : le scénario lâche si environ 1&nbsp;100 abonnés passent au Pass</h3>
+    <span class="notion">Notion du cours : <a href="https://prix.iae-mod.fr/seances/seance-td-3.html" target="_blank" rel="noopener"><b>le stress test (TD 3)</b></a> : malmener les hypothèses une par une, puis ensemble, pour voir à quel moment le scénario lâche</span>
+    <div class="tbl"><table>
+      <thead><tr><th>Ce qui tourne mal</th><th>Calcul</th><th class="num">Résultat de la saison</th></tr></thead>
+      <tbody>
+        <tr><td>Rien : le scénario prévu</td><td>121&nbsp;500 × 6,44 − 546&nbsp;387</td><td class="num pos">+235&nbsp;709&nbsp;€</td></tr>
+        <tr><td>Coûts variables +50&nbsp;% (1,24&nbsp;€ au lieu de 0,83&nbsp;€)</td><td>121&nbsp;500 × 6,02 − 546&nbsp;387</td><td class="num pos">+185&nbsp;491&nbsp;€</td></tr>
+        <tr><td>Ventes −30&nbsp;% (85&nbsp;050 Pass)</td><td>≈ seuil de rentabilité</td><td class="num zero">≈ 0&nbsp;€</td></tr>
+        <tr><td>Ventes divisées par deux (60&nbsp;750 Pass)</td><td>60&nbsp;750 × 6,44 − 546&nbsp;387</td><td class="num neg">−155&nbsp;339&nbsp;€</td></tr>
+        <tr><td>Coûts fixes doublés (1&nbsp;092&nbsp;773&nbsp;€)</td><td>121&nbsp;500 × 6,44 − 1&nbsp;092&nbsp;773</td><td class="num neg">−310&nbsp;678&nbsp;€</td></tr>
+        <tr><td>1&nbsp;089 abonnés résilient pour le Pass</td><td>235&nbsp;709 − 1&nbsp;089 × 216</td><td class="num zero">≈ 0&nbsp;€</td></tr>
+        <tr><td>Ventes ÷ 2 et 1&nbsp;000 abonnés perdus</td><td>−155&nbsp;339 − 1&nbsp;000 × 216</td><td class="num neg">−371&nbsp;826&nbsp;€</td></tr>
+      </tbody>
+    </table></div>
+    <p><strong>Le coût d'un abonné perdu : 216&nbsp;€ par an.</strong> Un abonné européen rapporte 4&nbsp;731&nbsp;M€ ÷ 17,24 millions = 274&nbsp;€ par an (onglet 1). S'il le remplace par un Pass par mois pendant 9 mois, il rapporte encore 9 × 6,44 = 58&nbsp;€. La perte nette est de 274 − 58 = 216&nbsp;€. Le chiffre de 274&nbsp;€ inclut la publicité : c'est une estimation haute.</p>
+
+    <div class="grid c2">
+      <div class="card red">
+        <h4>Les points de rupture</h4>
+        <ul>
+          <li><strong>Volume :</strong> sous 84&nbsp;882 Pass, soit 30&nbsp;% de ventes en moins que prévu, le Pass perd de l'argent.</li>
+          <li><strong>Coûts fixes :</strong> au-delà de 782&nbsp;096&nbsp;€ (121&nbsp;500 × 6,44), soit 43&nbsp;% de plus que le budget retenu.</li>
+          <li><strong>Coût variable :</strong> au-delà de 2,77&nbsp;€ par Pass (7,26 − 546&nbsp;387 ÷ 121&nbsp;500), plus de trois fois notre estimation.</li>
+          <li><strong>Cannibalisation :</strong> environ 1&nbsp;100 abonnés (235&nbsp;709 ÷ 216), soit moins de 0,01&nbsp;% des 17,24 millions d'abonnés européens. <strong>C'est l'hypothèse qui lâche en premier.</strong></li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h4>Les garde-fous qui en découlent</h4>
+        <ul>
+          <li>Réserver le Pass aux comptes sans abonnement actif, et à ceux qui n'ont pas résilié dans les trois derniers mois.</li>
+          <li>Le vendre sur le site web, jamais en achat intégré sur iPhone (1,89&nbsp;€ de commission par Pass).</li>
+          <li>Lancer le Pass comme un test d'une saison, et suivre chaque mois les ventes (objectif : 9&nbsp;431 Pass par mois) et les résiliations.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout red">
+      <h4>Ce que ça coûte à CANAL+ si nous nous trompons</h4>
+      <p>Dans le pire scénario testé, la perte est de <strong>371&nbsp;826&nbsp;€</strong>. C'est 0,07&nbsp;% de l'EBITA de 503&nbsp;M€ du groupe en 2024 (onglet 1), et 0,02&nbsp;% des 1&nbsp;667&nbsp;M€ de capitaux propres de Groupe Canal+. CANAL+ peut se permettre de tester le Pass sur une saison, à condition de surveiller les ventes et les résiliations dès le premier mois.</p>
+    </div>
+
+    <h3>Limites : ce que nos chiffres ne permettent pas d'affirmer</h3>
+    <ul>
+      <li><strong>L'échantillon :</strong> 121 répondants plutôt jeunes et de proximité. Les intentions déclarées sont plus généreuses que les achats réels.</li>
+      <li><strong>Le volume :</strong> notre questionnaire mesure une intention d'achat, pas un taux d'achat à chaque prix. Les 5&nbsp;% d'acheteurs réels par mois sont une hypothèse : c'est pourquoi nous donnons le point de rupture (84&nbsp;882 Pass) plutôt qu'une prévision unique.</li>
+      <li><strong>Les coûts fixes :</strong> les 546&nbsp;387&nbsp;€ sont construits à partir de prix publics (onglet 4), mais la taille de l'équipe et la fréquence des publicités restent nos hypothèses.</li>
+      <li><strong>La TVA à 10&nbsp;%</strong> suppose un Pass limité au direct. S'il inclut un replay au-delà d'un mois, l'offre passe à 20&nbsp;% : la recette HT tombe à 6,66&nbsp;€.</li>
+      <li><strong>Le revenu par abonné</strong> (274&nbsp;€ par an) est celui de l'Europe, pas de la France seule : CANAL+ ne publie plus de chiffre français.</li>
+    </ul>
+
+    <h3>Usage de l'IA</h3>
+    <p>Comme l'exige le <a href="https://prix.iae-mod.fr/seances/seance-cm-1.html" target="_blank" rel="noopener">cours</a>, voici à quoi l'IA a servi. Nous avons utilisé Claude (Anthropic) comme assistant de travail : pour coder le questionnaire en ligne et l'envoi des réponses vers notre feuille de calcul, pour adapter le squelette d'analyse du cours à nos données et construire le tableau de bord, pour rechercher des tarifs publics et des sources, pour vérifier nos calculs et pour mettre en forme ce dossier et ses schémas. Le choix du produit, du test A/B, des hypothèses et du prix est le nôtre. Chaque chiffre a été vérifié par l'équipe sur la page source indiquée en lien.</p>
+
+    <nav class="pager"><a href="#budget"><small>Onglet précédent</small>4. Le budget</a></nav>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Dossier du groupe, M1 Marketing-Vente, IAE Clermont-Auvergne, novembre 2026. L'offre présentée n'existe pas.</span>
+    <a href="https://pexi58.github.io/questionnaire-pass-sport/" target="_blank" rel="noopener">Le questionnaire</a>
+    <a href="analyse.html">Le tableau de bord d'analyse</a>
+    <a href="https://docs.google.com/spreadsheets/d/1itZ4G8MJh_IKhMllXsf0m8XKNVTKbrZaH-lyYHx3HeQ/edit?gid=1082711852#gid=1082711852" target="_blank" rel="noopener">Les réponses (Google Sheet, accès réservé)</a>
+    <a href="https://github.com/Pexi58/questionnaire-pass-sport" target="_blank" rel="noopener">Le code sur GitHub</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  document.documentElement.classList.add('js');
+
+  /* ============================== Onglets ============================== */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  var panels = tabs.map(function (t) { return document.getElementById(t.getAttribute('aria-controls')); });
+  var ids = tabs.map(function (t) { return t.getAttribute('aria-controls'); });
+
+  function activer(id, options) {
+    options = options || {};
+    var i = ids.indexOf(id);
+    if (i < 0) return false;
+    tabs.forEach(function (t, k) {
+      var on = k === i;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      panels[k].hidden = !on;
+    });
+    if (!options.silencieux) {
+      if (history.replaceState) history.replaceState(null, '', '#' + id);
+      else location.hash = id;
+    }
+    if (options.defiler !== false) {
+      var top = panels[i].getBoundingClientRect().top + window.pageYOffset - 70;
+      window.scrollTo({ top: Math.max(0, top), behavior: options.immediat ? 'auto' : 'smooth' });
+    }
+    try { tabs[i].scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {}
+    return true;
+  }
+
+  tabs.forEach(function (t, k) {
+    t.addEventListener('click', function () { activer(ids[k]); });
+    t.addEventListener('keydown', function (e) {
+      var j = null;
+      if (e.key === 'ArrowRight') j = (k + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft') j = (k - 1 + tabs.length) % tabs.length;
+      else if (e.key === 'Home') j = 0;
+      else if (e.key === 'End') j = tabs.length - 1;
+      if (j === null) return;
+      e.preventDefault();
+      tabs[j].focus();
+      activer(ids[j]);
+    });
+  });
+
+  /* Liens internes « #budget » : ouvrir l'onglet au lieu de laisser le navigateur chercher une ancre cachée */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a[href^="#"]') : null;
+    if (!a) return;
+    var id = a.getAttribute('href').slice(1);
+    if (ids.indexOf(id) < 0) return;
+    e.preventDefault();
+    activer(id);
+  });
+  window.addEventListener('hashchange', function () {
+    var id = location.hash.slice(1);
+    if (ids.indexOf(id) >= 0) activer(id, { silencieux: true });
+  });
+
+  var initial = location.hash.slice(1);
+  activer(ids.indexOf(initial) >= 0 ? initial : ids[0], { silencieux: true, defiler: false });
+
+  /* ============================== Van Westendorp ============================== */
+  /* Chaque ligne = un répondant : [trop bon marché, bon marché, cher, trop cher], en euros.
+     121 réponses nettoyées (10 doublons et 17 mineurs retirés), export du 20/11/2026. */
+  var VW_DATA = {"A":[[1.0,3.0,8.0,10.0],[3.0,5.0,6.0,8.0],[10.0,20.0,25.0,35.0],[5.0,10.0,15.0,20.0],[0.99,2.0,3.0,10.0],[3.0,4.0,5.0,7.0],[10.0,20.0,40.0,50.0],[0.99,4.99,10.0,12.0],[5.0,15.0,20.0,25.0],[9.0,12.0,15.0,20.0],[10.0,20.0,50.0,70.0],[1.0,3.0,5.0,7.0],[5.0,10.0,20.0,25.0],[4.99,7.99,15.0,15.02],[0.0,2.0,3.0,5.0],[1.0,3.0,5.0,8.0],[4.99,7.99,9.99,14.99],[5.0,15.0,25.0,30.0],[10.0,23.0,27.0,35.0],[5.0,8.0,12.0,15.0],[2.0,3.0,10.0,15.0],[2.0,3.99,6.99,9.99],[5.0,10.0,20.0,30.0],[5.0,10.0,15.0,25.0],[10.0,20.0,30.0,35.0],[0.5,0.99,1.99,3.0],[0.0,2.0,5.0,8.0],[7.0,10.0,25.0,30.0],[2.0,5.0,10.0,15.0],[0.5,0.99,1.5,2.99],[0.0,5.0,10.0,15.0],[1.0,3.0,4.0,5.0],[3.0,5.0,8.0,10.0],[0.0,0.5,1.0,1.5],[5.0,8.0,18.0,20.0],[2.0,5.0,6.0,10.0],[3.0,3.5,4.0,10.0],[0.0,2.0,10.0,11.0],[5.0,9.0,12.0,15.0],[2.0,3.0,8.0,10.0],[10.0,20.0,30.0,50.0],[10.0,20.0,25.0,40.0],[10.0,20.0,30.0,40.0],[5.0,15.0,25.0,35.0],[5.0,10.0,15.0,40.0],[5.0,10.0,15.0,20.0],[3.0,5.0,8.0,12.0],[50.0,150.0,200.0,450.0],[2.0,4.0,5.0,9.0],[10.0,20.0,30.0,40.0],[3.0,7.0,10.0,15.0],[1.0,3.0,10.0,15.0],[2.0,3.0,4.0,6.0],[60.0,250.0,250.0,500.0]],"B":[[2.99,4.99,10.99,20.99],[4.0,7.0,12.0,15.0],[2.0,5.0,10.0,15.0],[1.0,2.0,5.0,10.0],[1.0,3.0,4.0,6.0],[2.0,4.0,6.0,7.0],[8.0,15.0,25.0,30.0],[1.0,2.0,4.0,5.0],[5.0,10.0,20.0,30.0],[2.0,5.0,7.0,10.0],[5.0,7.0,10.0,14.0],[5.0,15.0,30.0,40.0],[5.0,10.0,15.0,25.0],[2.0,3.0,5.0,6.0],[20.0,25.0,35.0,50.0],[10.0,25.0,40.0,60.0],[5.0,10.0,20.0,30.0],[2.0,6.0,8.0,10.0],[20.0,50.0,100.0,150.0],[2.0,5.0,7.0,10.0],[3.0,7.0,10.0,13.0],[2.0,5.0,20.0,30.0],[2.0,5.0,7.0,15.0],[2.0,5.0,10.0,30.0],[5.0,15.0,30.0,50.0],[2.99,7.0,10.0,15.0],[10.0,15.0,20.0,25.0],[1.99,3.99,4.99,7.0],[5.0,10.0,20.0,30.0],[5.0,15.0,20.0,40.0],[5.0,20.0,35.0,45.0],[5.0,10.0,10.0,20.0],[1.0,5.0,10.0,20.0],[1.0,3.0,5.0,6.0],[0.0,1.0,3.0,4.0],[2.0,5.0,8.0,12.0],[9.0,15.0,19.0,25.0],[2.0,4.0,6.0,10.0],[0.99,4.99,9.99,10.99],[10.0,15.0,20.0,22.0],[1.0,3.0,5.0,7.0],[2.0,3.0,5.0,8.0],[2.0,5.0,15.0,20.0],[5.0,10.0,12.0,17.0],[1.0,2.0,2.0,3.0],[0.2,1.0,2.3,4.0],[1.0,1.5,2.0,3.0],[5.0,10.0,15.0,30.0],[10.0,20.0,25.0,50.0],[2.0,5.0,6.0,8.0],[5.0,10.0,15.0,20.0],[20.0,25.0,30.0,31.0],[10.0,20.0,30.0,40.0],[1.0,3.0,4.0,5.0],[1.0,2.0,4.0,5.0],[3.0,7.0,15.0,20.0],[2.0,5.0,6.0,10.0],[10.0,20.0,30.0,50.0],[1.0,2.0,3.0,10.0],[1.0,3.0,5.0,6.0],[2.0,5.0,8.0,10.0],[2.0,3.0,3.0,4.0],[2.0,5.0,8.0,15.0],[3.0,5.0,6.0,7.0],[1.0,15.0,20.0,26.0],[6.0,9.0,14.0,18.0],[2.0,5.0,7.0,15.0]]};
+  var PRIX_RETENU = 7.99;
+
+  function percentile(a, q) {                              // numpy.percentile, interpolation linéaire
+    var s = a.slice().sort(function (x, y) { return x - y; });
+    var pos = (s.length - 1) * q / 100, i = Math.floor(pos), f = pos - i;
+    return i + 1 < s.length ? s[i] + f * (s[i + 1] - s[i]) : s[i];
+  }
+  function courbes(d, grille) {                             // outils.courbes_vw du squelette du cours
+    var n = d.length;
+    function part(f) { return grille.map(function (p) { var c = 0; for (var k = 0; k < n; k++) if (f(d[k], p)) c++; return c / n; }); }
+    return {
+      prix: grille,
+      tbm: part(function (r, p) { return r[0] >= p; }),
+      bm: part(function (r, p) { return r[1] >= p; }),
+      ch: part(function (r, p) { return r[2] <= p; }),
+      tc: part(function (r, p) { return r[3] <= p; })
+    };
+  }
+  function croisement(c, a, b) {                            // outils.croisement : premier changement de signe, interpolé
+    var diff = c[a].map(function (x, i) { return x - c[b][i]; }), prix = c.prix;
+    var signe = diff.map(Math.sign), depart = 0;
+    for (var k = 0; k < signe.length; k++) if (signe[k] !== 0) { depart = signe[k]; break; }
+    for (var i = 1; i < diff.length; i++) {
+      if (signe[i] !== 0 && signe[i] !== depart) {
+        var j = i - 1;
+        while (j >= 0 && signe[j] === 0) j--;
+        if (j < i - 1) return (prix[j + 1] + prix[i - 1]) / 2;
+        return prix[j] + (prix[i] - prix[j]) * diff[j] / (diff[j] - diff[i]);
+      }
+    }
+    return NaN;
+  }
+  function points(c) {
+    return { PMC: croisement(c, 'tbm', 'ch'), OPP: croisement(c, 'tbm', 'tc'), IPP: croisement(c, 'bm', 'ch'), PME: croisement(c, 'bm', 'tc') };
+  }
+  function fmt(x, d) {
+    if (!isFinite(x)) return '—';
+    return x.toFixed(d === undefined ? 1 : d).replace('.', ',');
+  }
+  function euros(x, d) { return fmt(x, d) + ' €'; }
+
+  if (VW_DATA && document.getElementById('vw-svg')) {
+    var groupes = { A: VW_DATA.A, B: VW_DATA.B, tous: VW_DATA.A.concat(VW_DATA.B) };
+    var hi = percentile(groupes.tous.map(function (r) { return r[3]; }), 97);
+    var grille = []; for (var g = 0; g < 400; g++) grille.push(hi * g / 399);   // grille commune aux deux versions
+    var resultats = {};
+    Object.keys(groupes).forEach(function (k) { var c = courbes(groupes[k], grille); resultats[k] = { c: c, p: points(c), n: groupes[k].length }; });
+
+    /* Tableau des bornes */
+    var tbody = document.querySelector('#vw-table tbody');
+    var noms = { A: 'A : avec CANAL+', B: 'B : sans marque', tous: 'Tous' };
+    ['A', 'B', 'tous'].forEach(function (k) {
+      var r = resultats[k], p = r.p, lo = Math.min(p.OPP, p.IPP), ho = Math.max(p.OPP, p.IPP);
+      var tr = document.createElement('tr');
+      if (k === 'tous') tr.className = 'total';
+      [noms[k], String(r.n), euros(p.PMC), euros(p.OPP), euros(p.IPP), euros(p.PME), euros(p.PMC) + ' à ' + euros(p.PME), euros(lo) + ' à ' + euros(ho)].forEach(function (v, i) {
+        var td = document.createElement('td'); td.textContent = v; if (i >= 1 && i <= 5) td.className = 'num'; tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+
+    /* Le schéma */
+    var W = 760, H = 380, L = 46, R = 16, T = 18, B = 44, XMAX = 20;
+    var X = function (p) { return L + (W - L - R) * p / XMAX; };
+    var Y = function (v) { return T + (H - T - B) * (1 - v); };
+    var svgNS = 'http://www.w3.org/2000/svg';
+    function el(tag, attrs, parent) {
+      var e = document.createElementNS(svgNS, tag);
+      for (var a in attrs) e.setAttribute(a, attrs[a]);
+      if (parent) parent.appendChild(e);
+      return e;
+    }
+    function chemin(c, cle) {
+      var d = '';
+      for (var i = 0; i < c.prix.length; i++) {
+        if (c.prix[i] > XMAX) break;
+        d += (i ? 'L' : 'M') + X(c.prix[i]).toFixed(1) + ' ' + Y(c[cle][i]).toFixed(1);
+      }
+      return d;
+    }
+    var conteneur = document.getElementById('vw-svg'), readout = document.getElementById('vw-readout');
+    var titre = document.getElementById('vw-titre');
+    var courant = 'tous';
+
+    function dessiner(k) {
+      courant = k;
+      var r = resultats[k], c = r.c, p = r.p;
+      conteneur.innerHTML = '';
+      var svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'Courbes de Van Westendorp, groupe ' + noms[k] }, conteneur);
+      // zones
+      if (isFinite(p.PMC) && isFinite(p.PME)) el('rect', { x: X(p.PMC), y: Y(1), width: Math.max(0, X(Math.min(p.PME, XMAX)) - X(p.PMC)), height: Y(0) - Y(1), fill: 'var(--zone)' }, svg);
+      var lo = Math.min(p.OPP, p.IPP), ho = Math.max(p.OPP, p.IPP);
+      if (isFinite(lo) && isFinite(ho)) el('rect', { x: X(lo), y: Y(1), width: Math.max(0, X(ho) - X(lo)), height: Y(0) - Y(1), fill: 'var(--zone-opt)' }, svg);
+      // grille et axes
+      [0, 0.25, 0.5, 0.75, 1].forEach(function (v) {
+        el('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), 'class': v === 0 ? 'axis' : 'gridline' }, svg);
+        el('text', { x: L - 8, y: Y(v) + 4, 'text-anchor': 'end' }, svg).textContent = Math.round(v * 100) + ' %';
+      });
+      for (var px = 0; px <= XMAX; px += 2) {
+        el('line', { x1: X(px), x2: X(px), y1: Y(0), y2: Y(0) + 5, 'class': 'axis' }, svg);
+        el('text', { x: X(px), y: Y(0) + 18, 'text-anchor': 'middle' }, svg).textContent = px + ' €';
+      }
+      el('text', { x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle', 'class': 'ink' }, svg).textContent = 'Prix du Pass (€ TTC)';
+      el('text', { x: L + 4, y: T - 8, 'text-anchor': 'start' }, svg).textContent = 'part des répondants';
+      // courbes
+      var styles = [['tbm', 'var(--c-tbm)', '6 4'], ['bm', 'var(--c-bm)', ''], ['ch', 'var(--c-ch)', ''], ['tc', 'var(--c-tc)', '6 4']];
+      styles.forEach(function (s) {
+        var a = { d: chemin(c, s[0]), fill: 'none', stroke: s[1], 'stroke-width': 2.4, 'stroke-linejoin': 'round' };
+        if (s[2]) a['stroke-dasharray'] = s[2];
+        el('path', a, svg);
+      });
+      // prix retenu
+      el('line', { x1: X(PRIX_RETENU), x2: X(PRIX_RETENU), y1: Y(1) - 4, y2: Y(0), stroke: '#fff', 'stroke-width': 1.5, 'stroke-dasharray': '4 4' }, svg);
+      el('text', { x: X(PRIX_RETENU) + 6, y: T + 4, fill: '#fff', 'font-weight': '700', 'class': 'halo' }, svg).textContent = '7,99 €';
+      // points
+      var etiquettes = [['PMC', p.PMC, 0.5], ['OPP', p.OPP, 0.5], ['IPP', p.IPP, 0.5], ['PME', p.PME, 0.5]];
+      // valeur y de chaque croisement : moyenne des deux courbes au point
+      function valeurA(cle, prix) { var i = 0; while (i < c.prix.length - 1 && c.prix[i] < prix) i++; return c[cle][i]; }
+      var paires = { PMC: ['tbm', 'ch'], OPP: ['tbm', 'tc'], IPP: ['bm', 'ch'], PME: ['bm', 'tc'] };
+      etiquettes.forEach(function (e, i) {
+        if (!isFinite(e[1]) || e[1] > XMAX) return;
+        var v = (valeurA(paires[e[0]][0], e[1]) + valeurA(paires[e[0]][1], e[1])) / 2;
+        el('circle', { cx: X(e[1]), cy: Y(v), r: 4.5, fill: '#000', stroke: '#fff', 'stroke-width': 2 }, svg);
+        // PMC à gauche au-dessus, OPP en dessous, IPP et PME à droite : évite la ligne du prix retenu et les courbes
+        var pos = { PMC: [-10, -12, 'end'], OPP: [0, 24, 'middle'], IPP: [10, -10, 'start'], PME: [10, 20, 'start'] }[e[0]];
+        var t = el('text', { x: X(e[1]) + pos[0], y: Y(v) + pos[1], 'text-anchor': pos[2], fill: '#fff', 'font-weight': '700', 'class': 'halo' }, svg);
+        t.textContent = e[0] + ' ' + euros(e[1]);
+      });
+      titre.textContent = 'Courbes de Van Westendorp, ' + (k === 'tous' ? '121 répondants' : 'version ' + noms[k] + ' (' + r.n + ')');
+
+      // survol : lecture des quatre courbes au prix pointé
+      var ligne = el('line', { x1: 0, x2: 0, y1: Y(1), y2: Y(0), stroke: '#777', 'stroke-width': 1, visibility: 'hidden' }, svg);
+      function survol(ev) {
+        var rect = svg.getBoundingClientRect();
+        var xs = (ev.clientX - rect.left) * W / rect.width;
+        var prix = (xs - L) / (W - L - R) * XMAX;
+        if (prix < 0 || prix > XMAX) { quitter(); return; }
+        var i = 0; while (i < c.prix.length - 1 && c.prix[i] < prix) i++;
+        ligne.setAttribute('x1', X(c.prix[i])); ligne.setAttribute('x2', X(c.prix[i])); ligne.setAttribute('visibility', 'visible');
+        readout.innerHTML = '<b>' + euros(c.prix[i], 2) + '</b>' +
+          '<span><em style="background:var(--c-tbm)"></em>trop bon marché : ' + fmt(c.tbm[i] * 100, 0) + ' %</span>' +
+          '<span><em style="background:var(--c-bm)"></em>bon marché : ' + fmt(c.bm[i] * 100, 0) + ' %</span>' +
+          '<span><em style="background:var(--c-ch)"></em>cher : ' + fmt(c.ch[i] * 100, 0) + ' %</span>' +
+          '<span><em style="background:var(--c-tc)"></em>trop cher : ' + fmt(c.tc[i] * 100, 0) + ' %</span>';
+        readout.style.display = 'block';
+        var parent = readout.parentNode.getBoundingClientRect();
+        var gauche = ev.clientX - parent.left + 14;
+        if (gauche + readout.offsetWidth > parent.width - 8) gauche = ev.clientX - parent.left - readout.offsetWidth - 14;
+        readout.style.left = Math.max(4, gauche) + 'px';
+        readout.style.top = (ev.clientY - parent.top - 10) + 'px';
+      }
+      function quitter() { readout.style.display = 'none'; ligne.setAttribute('visibility', 'hidden'); }
+      svg.addEventListener('mousemove', survol);
+      svg.addEventListener('mouseleave', quitter);
+    }
+    dessiner('tous');
+
+    Array.prototype.forEach.call(document.querySelectorAll('#vw .seg button'), function (b) {
+      b.addEventListener('click', function () {
+        Array.prototype.forEach.call(document.querySelectorAll('#vw .seg button'), function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        dessiner(b.getAttribute('data-groupe'));
+      });
+    });
+  }
+})();
+</script>
 </body>
 </html>
