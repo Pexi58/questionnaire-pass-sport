@@ -39,7 +39,6 @@
   --wrap: 1120px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
 body {
   background: var(--bg); color: var(--text);
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -67,7 +66,7 @@ a.src::after { content: "\2197"; font-size: 0.7em; margin-left: 2px; vertical-al
 .tab {
   appearance: none; background: none; border: 0; color: var(--muted); cursor: pointer;
   font: inherit; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase;
-  padding: 20px 10px 18px; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s;
+  padding: 20px 10px 18px; border-bottom: 2px solid transparent; white-space: nowrap;
 }
 .brand { flex: none; }
 @media (max-width: 1320px) { .brand small { display: none; } }
@@ -177,6 +176,24 @@ td .cell-note { display: block; color: var(--muted); font-size: 0.82rem; margin-
 .readout span { display: flex; align-items: center; gap: 6px; }
 .readout em { width: 10px; height: 3px; display: inline-block; }
 
+/* Mapping cliquable : chaque acteur et chaque ligne ouvre son explication sous le schéma */
+.mp { cursor: pointer; outline: none; }
+.mp .hit { fill: transparent; stroke: none; }
+.mp:hover text, .mp.sel text { fill: #fff; }
+.mp.sel .hit, .mp:focus-visible .hit { stroke: #fff; stroke-width: 1.5; stroke-dasharray: 3 3; }
+.map-hint { color: var(--muted); font-size: 0.84rem; margin: 10px 0 0; }
+.map-item { background: var(--bg-inset); border: 1px solid var(--border-soft); border-left: 3px solid var(--red); border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 18px; margin-top: 10px; }
+.map-item h5 { font-size: 1rem; font-weight: 700; margin: 0 0 8px; }
+.map-item p, .map-item li { color: var(--text-2); font-size: 0.93rem; }
+.map-item ul { margin-bottom: 0; }
+html.js .map-item:not(.on) { display: none; }
+
+/* Bouton d'action (lien vers le questionnaire) */
+.btn { display: inline-flex; align-items: center; gap: 8px; background: var(--red); color: #fff; font-weight: 700; font-size: 0.9rem; letter-spacing: 0.3px; padding: 11px 20px; border-radius: 8px; text-decoration: none; margin: 4px 10px 4px 0; }
+.btn:hover { background: #ff1a1a; color: #fff; text-decoration: none; }
+.btn.ghost { background: none; border: 1px solid var(--border); color: var(--text); }
+.btn.ghost:hover { border-color: var(--text); background: var(--bg-panel); }
+
 /* Budget : barre de répartition */
 .bar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); margin: 12px 0 8px; }
 .bar div { height: 100%; }
@@ -194,7 +211,7 @@ details .inner code { font-family: ui-monospace, "Cascadia Mono", Consolas, mono
 
 /* ---------- Navigation bas de page ---------- */
 .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--border-soft); }
-.pager a { display: inline-flex; flex-direction: column; color: var(--text); text-decoration: none; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius); min-width: 180px; transition: border-color 0.2s, background 0.2s; }
+.pager a { display: inline-flex; flex-direction: column; color: var(--text); text-decoration: none; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius); min-width: 180px; }
 .pager a:hover { border-color: var(--text); background: var(--bg-panel); }
 .pager a small { color: var(--muted); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 1px; }
 .pager a.next { margin-left: auto; text-align: right; }
@@ -211,10 +228,14 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 28px; }
   .panel { padding: 30px 0 40px; }
   th, td { padding: 10px 12px; }
   .pager a { min-width: 0; flex: 1; }
+  #mapping { overflow-x: auto; }                 /* sur téléphone, le mapping se fait défiler de côté plutôt que de rétrécir */
+  #mapping svg { min-width: 640px; }
 }
 @media print {
   .topbar, .pager, .seg, footer { display: none !important; }
   html.js .panel[hidden] { display: block; }
+  html.js .map-item:not(.on) { display: block; }
+  .map-hint, .btn { display: none !important; }
   body { background: #fff; color: #000; font-size: 11pt; }
   .hero, .card, .kpi, .tbl, .chart, .lecture, .callout, details { background: #fff; border-color: #bbb; }
   a { color: #000; }
@@ -453,66 +474,118 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 28px; }
     <p class="muted small"><strong>Limite.</strong> Le bilan de l'Arcom ne mesure ni le prix ni le consentement à payer des pirates. Dire qu'un Pass les convertirait reste une hypothèse, testée par notre questionnaire (onglet 3).</p>
 
     <h3>Le mapping : où se place le Pass</h3>
-    <p>Deux axes : ce que le client paie pour voir <em>un</em> match (prix du mois sans engagement, ou de l'abonnement qui inclut le sport), et l'engagement qu'on lui demande. Les prix sont ceux des tableaux ci-dessus.</p>
+    <p>Chaque acteur est placé selon <strong>ce que le client paie pour voir un match</strong> (en abscisse : le prix d'un mois sans engagement, ou le prix du match pour le Pass) et <strong>ce qu'on lui demande de souscrire</strong> (les trois lignes). Les prix sont ceux des tableaux ci-dessus. Les offres avec 12 ou 24 mois d'engagement sont exclues, comme pour le plafond.</p>
     <div class="chart" id="mapping">
-      <svg viewBox="0 0 760 470" role="img" aria-labelledby="map-title map-desc">
+      <svg viewBox="0 0 760 460" role="img" aria-labelledby="map-title map-desc">
         <title id="map-title">Mapping des concurrents : prix pour voir un match et engagement demandé</title>
-        <desc id="map-desc">Les abonnements sport occupent le bas du schéma, de 6,99 à 25 euros par mois. La télévision en clair est en haut à gauche, gratuite et sans engagement. Le Pass Match CANAL+ à 7,99 euros est seul dans la zone payante sans engagement.</desc>
+        <desc id="map-desc">Trois lignes. Sans rien souscrire : la télévision en clair à 0 euro et le Pass Match CANAL+ à 7,99 euros, seul acteur payant de cette ligne. Un mois d'abonnement résiliable : Disney+ 6,99, Eurosport via HBO Max 11,99, beIN SPORTS environ 15, DAZN 15,99, Ligue 1+ 24,99 et RMC Sport 25 euros par mois. Réservé aux abonnés : TF1 via Netflix, Prime Video 6,99 et le Pass Coupes d'Europe CANAL+ à 10 euros, qui fixe le plafond.</desc>
         <defs>
           <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker>
         </defs>
-        <!-- quadrants -->
-        <rect x="70" y="30" width="330" height="190" fill="rgba(29,185,84,0.06)"/>
-        <rect x="400" y="30" width="330" height="190" fill="rgba(229,0,0,0.08)"/>
-        <rect x="70" y="220" width="660" height="190" fill="rgba(255,255,255,0.025)"/>
-        <text x="80" y="50" class="ink" font-weight="700" font-size="12">GRATUIT ET SANS ENGAGEMENT</text>
-        <text x="80" y="66" font-size="11">la télé en clair, pour quelques événements</text>
-        <text x="720" y="50" class="ink" font-weight="700" font-size="12" text-anchor="end">PAYANT, SANS ENGAGEMENT</text>
-        <text x="720" y="66" font-size="11" text-anchor="end">l'espace vide : un match seul, personne ne le vend</text>
-        <text x="720" y="400" class="ink" font-weight="700" font-size="12" text-anchor="end">LES ABONNEMENTS</text>
-        <text x="80" y="400" class="ink" font-weight="700" font-size="12">INCLUS DANS UN ABONNEMENT DÉJÀ PAYÉ</text>
+        <!-- X(p) = 70 + p × 25,5 ; trois bandes de 124 px (haut 28, 152, 276), ligne des points à +76 -->
+        <rect x="70" y="28" width="665" height="124" fill="rgba(229,0,0,0.045)"/>
+        <rect x="70" y="152" width="665" height="124" fill="rgba(255,255,255,0.03)"/>
+        <rect x="70" y="276" width="665" height="124" fill="rgba(77,166,255,0.05)"/>
+        <line x1="70" y1="152" x2="735" y2="152" stroke="#333"/>
+        <line x1="70" y1="276" x2="735" y2="276" stroke="#333"/>
+        <line x1="130" y1="104" x2="735" y2="104" stroke="#2a2a2a" stroke-dasharray="2 4"/>
+        <line x1="70" y1="228" x2="735" y2="228" stroke="#2a2a2a" stroke-dasharray="2 4"/>
+        <line x1="130" y1="352" x2="735" y2="352" stroke="#2a2a2a" stroke-dasharray="2 4"/>
+
+        <!-- titres des trois lignes (cliquables) -->
+        <g class="mp" data-map="bande1" role="button" tabindex="0" aria-pressed="false" aria-label="Ligne 1, sans rien souscrire : voir l'explication">
+          <rect class="hit" x="72" y="30" width="330" height="36" rx="4" pointer-events="all"/>
+          <text x="78" y="46" class="ink" font-weight="700" font-size="12">1. SANS RIEN SOUSCRIRE</text>
+          <text x="78" y="60" font-size="10.5">on paie le match, ou rien, et c'est fini</text>
+        </g>
+        <g class="mp" data-map="bande2" role="button" tabindex="0" aria-pressed="false" aria-label="Ligne 2, un mois d'abonnement résiliable : voir l'explication">
+          <rect class="hit" x="72" y="154" width="330" height="36" rx="4" pointer-events="all"/>
+          <text x="78" y="170" class="ink" font-weight="700" font-size="12">2. UN MOIS D'ABONNEMENT, RÉSILIABLE</text>
+          <text x="78" y="184" font-size="10.5">on s'abonne pour le match, puis on résilie</text>
+        </g>
+        <g class="mp" data-map="bande3" role="button" tabindex="0" aria-pressed="false" aria-label="Ligne 3, réservé à ceux qui sont déjà abonnés : voir l'explication">
+          <rect class="hit" x="72" y="278" width="330" height="36" rx="4" pointer-events="all"/>
+          <text x="78" y="294" class="ink" font-weight="700" font-size="12">3. RÉSERVÉ À CEUX QUI SONT DÉJÀ ABONNÉS</text>
+          <text x="78" y="308" font-size="10.5">il faut déjà payer un autre abonnement</text>
+        </g>
+
+        <!-- la case vide -->
+        <path d="M118 68 H726 Q732 68 732 74 V140 Q732 146 726 146 H118" fill="rgba(229,0,0,0.05)" stroke="#e50000" stroke-width="1.2" stroke-dasharray="5 4"/>
+        <text x="726" y="137" text-anchor="end" font-size="10.5" fill="#ff8a8a" font-weight="600">LA CASE VIDE : personne ne vend un match seul payant, le Pass s'y place seul</text>
+
+        <!-- plafond -->
+        <line x1="325" y1="28" x2="325" y2="400" stroke="#fff" stroke-width="1.2" stroke-dasharray="4 3" opacity="0.7"/>
+        <text x="331" y="394" font-size="10.5" class="ink" font-weight="600">plafond : 10 €</text>
+
         <!-- axes -->
-        <line x1="70" y1="220" x2="735" y2="220" stroke="#555" stroke-width="1.2" marker-end="url(#arr)"/>
-        <line x1="70" y1="415" x2="70" y2="25" stroke="#555" stroke-width="1.2" marker-end="url(#arr)"/>
-        <text x="400" y="445" text-anchor="middle" class="ink" font-weight="600">Prix payé pour voir un match (€ TTC)</text>
-        <text transform="translate(22,220) rotate(-90)" text-anchor="middle" class="ink" font-weight="600">Engagement demandé au client</text>
-        <text x="60" y="40" text-anchor="end" font-size="10.5">aucun</text>
-        <text x="60" y="410" text-anchor="end" font-size="10.5">abonnement</text>
-        <!-- graduations : X(p) = 70 + p * 26 -->
+        <line x1="70" y1="400" x2="740" y2="400" stroke="#555" stroke-width="1.2" marker-end="url(#arr)"/>
+        <line x1="70" y1="400" x2="70" y2="22" stroke="#555" stroke-width="1.2" marker-end="url(#arr)"/>
         <g font-size="10.5">
-          <line x1="70" y1="220" x2="70" y2="226" stroke="#555"/><text x="70" y="240" text-anchor="middle">0 €</text>
-          <line x1="200" y1="220" x2="200" y2="226" stroke="#555"/><text x="200" y="240" text-anchor="middle">5 €</text>
-          <line x1="330" y1="220" x2="330" y2="226" stroke="#555"/><text x="330" y="240" text-anchor="middle">10 €</text>
-          <line x1="460" y1="220" x2="460" y2="226" stroke="#555"/><text x="460" y="240" text-anchor="middle">15 €</text>
-          <line x1="590" y1="220" x2="590" y2="226" stroke="#555"/><text x="590" y="240" text-anchor="middle">20 €</text>
-          <line x1="720" y1="220" x2="720" y2="226" stroke="#555"/><text x="720" y="240" text-anchor="middle">25 €</text>
+          <line x1="70" y1="400" x2="70" y2="406" stroke="#555"/><text x="70" y="420" text-anchor="middle">0 €</text>
+          <line x1="197.5" y1="400" x2="197.5" y2="406" stroke="#555"/><text x="197.5" y="420" text-anchor="middle">5 €</text>
+          <line x1="325" y1="400" x2="325" y2="406" stroke="#555"/><text x="325" y="420" text-anchor="middle">10 €</text>
+          <line x1="452.5" y1="400" x2="452.5" y2="406" stroke="#555"/><text x="452.5" y="420" text-anchor="middle">15 €</text>
+          <line x1="580" y1="400" x2="580" y2="406" stroke="#555"/><text x="580" y="420" text-anchor="middle">20 €</text>
+          <line x1="707.5" y1="400" x2="707.5" y2="406" stroke="#555"/><text x="707.5" y="420" text-anchor="middle">25 €</text>
         </g>
-        <!-- en clair : 0 €, aucun engagement -->
-        <g>
-          <circle cx="78" cy="110" r="6" fill="none" stroke="#6fe0a0" stroke-width="2"/><text x="90" y="106" class="ink">France Télévisions</text><text x="90" y="119" font-size="10">Tour de France, Roland-Garros</text>
-          <circle cx="78" cy="160" r="6" fill="none" stroke="#6fe0a0" stroke-width="2"/><text x="90" y="156" class="ink">M6</text><text x="90" y="169" font-size="10">Coupe du monde 2026</text>
+        <text x="402" y="446" text-anchor="middle" class="ink" font-weight="600">Prix payé pour voir un match (€ TTC : le mois pour un abonnement, le match pour le Pass)</text>
+        <text transform="translate(22,214) rotate(-90)" text-anchor="middle" class="ink" font-weight="600">Engagement demandé au client</text>
+
+        <!-- ligne 1 : sans rien souscrire -->
+        <g class="mp" data-map="francetv" role="button" tabindex="0" aria-pressed="false" aria-label="France Télévisions, gratuit : voir l'explication">
+          <circle class="hit" cx="76" cy="84" r="15" pointer-events="all"/>
+          <circle cx="76" cy="84" r="6" fill="none" stroke="#6fe0a0" stroke-width="2"/><text x="88" y="88" class="ink">France Télévisions · 0 €</text>
         </g>
-        <!-- notre Pass : 7,99 €, aucun engagement -->
-        <g>
-          <circle cx="278" cy="135" r="22" fill="rgba(229,0,0,0.18)"/>
-          <circle cx="278" cy="135" r="9" fill="#e50000" stroke="#fff" stroke-width="2"/>
-          <text x="300" y="131" fill="#fff" font-weight="800" font-size="13">PASS MATCH CANAL+</text>
-          <text x="300" y="146" fill="#fff" font-size="11">7,99 € le match, sans abonnement</text>
+        <g class="mp" data-map="m6" role="button" tabindex="0" aria-pressed="false" aria-label="M6, gratuit : voir l'explication">
+          <circle class="hit" cx="76" cy="124" r="15" pointer-events="all"/>
+          <circle cx="76" cy="124" r="6" fill="none" stroke="#6fe0a0" stroke-width="2"/><text x="88" y="128" class="ink">M6 · 0 €</text>
         </g>
-        <!-- inclus / déjà payé -->
-        <g>
-          <circle cx="76" cy="300" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="88" y="296" class="ink">TF1 via Netflix</text><text x="88" y="309" font-size="10">inclus dans Netflix</text>
-          <circle cx="252" cy="345" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="264" y="341" class="ink">Prime Video</text><text x="264" y="354" font-size="10">Roland-Garros en soirée, 6,99 €</text>
+        <g class="mp" data-map="pass" role="button" tabindex="0" aria-pressed="true" aria-label="Pass Match CANAL+, 7,99 euros le match : voir l'explication">
+          <circle class="hit" cx="273.7" cy="104" r="24" pointer-events="all"/>
+          <circle cx="273.7" cy="104" r="20" fill="rgba(229,0,0,0.2)"/>
+          <circle cx="273.7" cy="104" r="9" fill="#e50000" stroke="#fff" stroke-width="2"/>
+          <text x="298" y="100" fill="#fff" font-weight="800" font-size="13">PASS MATCH CANAL+</text>
+          <text x="298" y="114" fill="#fff" font-size="10.5">7,99 € le match</text>
         </g>
-        <!-- abonnements sport -->
-        <g>
-          <circle cx="252" cy="275" r="6" fill="#fff"/><text x="264" y="271" class="ink">Disney+ (Liga)</text><text x="264" y="284" font-size="10">6,99 €/mois</text>
-          <rect x="324" y="305" width="12" height="12" fill="#fff" transform="rotate(45 330 311)"/><text x="342" y="307" class="ink">Pass Coupes d'Europe CANAL+</text><text x="342" y="320" font-size="10">option à 10 € sur un abonnement CANAL+</text>
-          <circle cx="382" cy="385" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="394" y="381" class="ink">Eurosport via HBO Max</text><text x="394" y="394" font-size="10">11,99 €/mois avec l'option Sport</text>
-          <circle cx="460" cy="262" r="6" fill="#fff"/><text x="472" y="258" class="ink">beIN SPORTS</text><text x="472" y="271" font-size="10">≈ 15 €/mois</text>
-          <circle cx="486" cy="345" r="6" fill="#fff"/><text x="498" y="341" class="ink">DAZN</text><text x="498" y="354" font-size="10">15,99 €/mois</text>
-          <circle cx="720" cy="280" r="6" fill="#fff"/><text x="708" y="276" class="ink" text-anchor="end">Ligue 1+</text><text x="708" y="289" font-size="10" text-anchor="end">24,99 €/mois</text>
-          <circle cx="720" cy="360" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="708" y="356" class="ink" text-anchor="end">RMC Sport</text><text x="708" y="369" font-size="10" text-anchor="end">25 €/mois (UFC)</text>
+
+        <!-- ligne 2 : un mois d'abonnement -->
+        <g class="mp" data-map="disney" role="button" tabindex="0" aria-pressed="false" aria-label="Disney+, 6,99 euros par mois : voir l'explication">
+          <circle class="hit" cx="248.2" cy="228" r="15" pointer-events="all"/>
+          <circle cx="248.2" cy="228" r="6" fill="#fff"/><text x="248.2" y="252" text-anchor="middle" class="ink">Disney+ (Liga) 6,99 €</text>
+        </g>
+        <g class="mp" data-map="hbo" role="button" tabindex="0" aria-pressed="false" aria-label="Eurosport via HBO Max, 11,99 euros par mois : voir l'explication">
+          <circle class="hit" cx="375.7" cy="228" r="15" pointer-events="all"/>
+          <circle cx="375.7" cy="228" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="375.7" y="212" text-anchor="middle" class="ink">Eurosport via HBO Max 11,99 €</text>
+        </g>
+        <g class="mp" data-map="bein" role="button" tabindex="0" aria-pressed="false" aria-label="beIN SPORTS, environ 15 euros par mois : voir l'explication">
+          <circle class="hit" cx="452.5" cy="228" r="15" pointer-events="all"/>
+          <circle cx="452.5" cy="228" r="6" fill="#fff"/><text x="452.5" y="252" text-anchor="middle" class="ink">beIN SPORTS ≈ 15 €</text>
+        </g>
+        <g class="mp" data-map="dazn" role="button" tabindex="0" aria-pressed="false" aria-label="DAZN, 15,99 euros par mois : voir l'explication">
+          <circle class="hit" cx="477.7" cy="228" r="15" pointer-events="all"/>
+          <circle cx="477.7" cy="228" r="6" fill="#fff"/><text x="490" y="212" class="ink">DAZN 15,99 €</text>
+        </g>
+        <g class="mp" data-map="ligue1" role="button" tabindex="0" aria-pressed="false" aria-label="Ligue 1+, 24,99 euros par mois : voir l'explication">
+          <circle class="hit" cx="707.2" cy="221" r="15" pointer-events="all"/>
+          <circle cx="707.2" cy="221" r="6" fill="#fff"/><text x="733" y="204" text-anchor="end" class="ink">Ligue 1+ 24,99 €</text>
+        </g>
+        <g class="mp" data-map="rmc" role="button" tabindex="0" aria-pressed="false" aria-label="RMC Sport, 25 euros par mois : voir l'explication">
+          <circle class="hit" cx="707.5" cy="235" r="15" pointer-events="all"/>
+          <circle cx="707.5" cy="235" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="733" y="258" text-anchor="end" class="ink">RMC Sport 25 €</text>
+        </g>
+
+        <!-- ligne 3 : réservé aux abonnés -->
+        <g class="mp" data-map="netflix" role="button" tabindex="0" aria-pressed="false" aria-label="TF1 via Netflix, inclus dans Netflix : voir l'explication">
+          <circle class="hit" cx="76" cy="352" r="15" pointer-events="all"/>
+          <circle cx="76" cy="352" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="88" y="356" class="ink">TF1 via Netflix</text>
+        </g>
+        <g class="mp" data-map="prime" role="button" tabindex="0" aria-pressed="false" aria-label="Prime Video, 6,99 euros par mois : voir l'explication">
+          <circle class="hit" cx="248.2" cy="352" r="15" pointer-events="all"/>
+          <circle cx="248.2" cy="352" r="6" fill="none" stroke="#8fc6ff" stroke-width="2"/><text x="248.2" y="376" text-anchor="middle" class="ink">Prime Video 6,99 €</text>
+        </g>
+        <g class="mp" data-map="coupes" role="button" tabindex="0" aria-pressed="false" aria-label="Pass Coupes d'Europe CANAL+, option à 10 euros : voir l'explication">
+          <circle class="hit" cx="325" cy="352" r="15" pointer-events="all"/>
+          <rect x="319" y="346" width="12" height="12" fill="#fff" transform="rotate(45 325 352)"/><text x="325" y="336" text-anchor="middle" class="ink">Pass Coupes d'Europe CANAL+ 10 €</text>
         </g>
       </svg>
       <div class="legend">
@@ -522,8 +595,119 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 28px; }
         <span><em style="background:#fff;transform:rotate(45deg);width:11px;height:11px"></em> option CANAL+ réservée aux abonnés</span>
         <span><em style="background:#e50000;border-radius:50%"></em> notre Pass</span>
       </div>
+      <p class="map-hint">Cliquez un acteur, ou le titre d'une ligne, pour lire d'où vient son chiffre et pourquoi il est placé là.</p>
+      <div class="map-detail" id="map-detail">
+        <div class="map-item" data-for="pass">
+          <h5>Pass Match CANAL+ : 7,99 € le match, sans rien souscrire</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> 7,99 € TTC pour un seul match, le prix que nous retenons (<a href="#proposition">onglet 5</a>). C'est le prix du match, pas celui d'un mois.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Le client ne souscrit rien : il paie, il regarde, c'est fini. Il est le seul acteur payant de la ligne 1 : la case vide du marché.</li>
+            <li><strong>Face au plafond.</strong> 7,99 € reste sous les 10 € du Pass Coupes d'Europe : n* = 10 ÷ 7,99 = 1,25, le Pass reste moins cher qu'un mois d'option pour celui qui regarde un match dans le mois.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="francetv">
+          <h5>France Télévisions : 0 €</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> Gratuit : télévision en clair. <a class="src" href="https://www.francetvpro.fr/contenu-de-presse/77734768" target="_blank" rel="noopener">Les 21 étapes du Tour de France</a> et <a class="src" href="https://www.rolandgarros.com/fr-fr/article/roland-garros-2026-diffuseurs-tv-france-international" target="_blank" rel="noopener">Roland-Garros en journée</a>.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Rien à souscrire et rien à payer. Pour ces événements, le client compare le Pass à zéro : le plafond est nul.</li>
+            <li><strong>Face au Pass.</strong> CANAL+ ne diffuse pas ces événements en exclusivité : le Pass ne les vise pas.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="m6">
+          <h5>M6 : 0 €</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> Gratuit : <a class="src" href="https://www.echosdunet.net/tv/actualites/coupe-du-monde-2026-tv" target="_blank" rel="noopener">54 matchs de la Coupe du monde 2026</a> en clair, dont tous ceux des Bleus.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Rien à souscrire, rien à payer : les grands événements gratuits.</li>
+            <li><strong>Face au Pass.</strong> Pour un match gratuit en clair, aucun Pass ne se vend : plafond nul.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="disney">
+          <h5>Disney+ (Liga) : 6,99 € par mois</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> <a class="src" href="https://press.disney.co.uk/news/disney-adds-laliga-to-its-live-sports-offering-in-france" target="_blank" rel="noopener">Dès 6,99 €/mois</a> : la Liga (380 matchs via ESPN, jusqu'en 2028-2029) est incluse dans tous les abonnements, sans supplément.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Un abonnement mensuel que l'on peut prendre pour un match puis résilier.</li>
+            <li><strong>Face au Pass.</strong> Le seul abonnement sport moins cher que le Pass (6,99 < 7,99). Mais CANAL+ ne diffuse pas la Liga : ce n'est pas le même match, et ce prix ne sert pas de plafond.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="hbo">
+          <h5>Eurosport via HBO Max : 11,99 € par mois</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> <a class="src" href="https://selectra.info/telecom/tv/svod/hbo-max" target="_blank" rel="noopener">Abonnement HBO Max + option Sport à 5 €/mois</a>, soit dès 11,99 €/mois. Tour de France complet, tennis, cyclisme.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Un abonnement mensuel résiliable, indirect : autre offre, même besoin.</li>
+            <li><strong>Face au Pass.</strong> Un mois vaut 11,99 ÷ 7,99 = 1,5 Pass. Moins cher que CANAL+ Sport, et déjà inclus dans CANAL+ Sport.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="bein">
+          <h5>beIN SPORTS : environ 15 € par mois</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> <a class="src" href="https://www.echosdunet.net/tv/streaming/bein-sports" target="_blank" rel="noopener">≈ 15 €/mois sans engagement</a>. Ligue 2, Coupe de France, Bundesliga, CAN 2027 ; <a class="src" href="https://www.laliga.com/en-GB/news/disney-and-dazn-become-the-new-home-of-laliga-ea-sports-in-france" target="_blank" rel="noopener">a perdu la Liga</a>.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Le prix d'entrée le plus bas du football payant, sans engagement. Concurrent direct, mais aussi partenaire : beIN est inclus dans CANAL+ Sport.</li>
+            <li><strong>Face au Pass.</strong> Un mois vaut 15 ÷ 7,99 = 1,9 Pass : pour un match aussi diffusé ailleurs, le plafond est d'environ 15 €.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="dazn">
+          <h5>DAZN : 15,99 € par mois</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> <a class="src" href="https://www.echosdunet.net/tv/actualites/dazn-ligue-1-plus-laliga-serie-a-prix-abonnement" target="_blank" rel="noopener">15,99 €/mois sans engagement</a>. Les autres tarifs ne sont pas placés : 10,99 € avec 12 mois d'engagement, 27,99 € pour DAZN + Ligue 1+, 13,99 € pour les 18-25 ans.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Un abonnement mensuel résiliable. Liga, Serie A, basket, boxe, MMA ; distribue aussi Ligue 1+.</li>
+            <li><strong>Face au Pass.</strong> Un mois vaut 15,99 ÷ 7,99 = 2 Pass. Seul exemple de vente à l'événement (certains combats), mais ce prix s'ajoute à l'abonnement.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="ligue1">
+          <h5>Ligue 1+ : 24,99 € par mois</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> <a class="src" href="https://ligue1.com/fr/offres-ligue1plus" target="_blank" rel="noopener">24,99 €/mois sans engagement</a>. Les autres tarifs ne sont pas placés : 19,99 € avec 12 mois, 11,99 € pour les moins de 26 ans, 199 € par an.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> La plateforme de la Ligue, 100 % de la Ligue 1 et la Ligue 3. Même supporter, même écran, mais pas de pass à la rencontre.</li>
+            <li><strong>Face au Pass.</strong> Un mois vaut 24,99 ÷ 7,99 = 3,1 Pass : le prix le plus élevé du marché pour voir un match.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="rmc">
+          <h5>RMC Sport : 25 € par mois</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> <a class="src" href="https://selectra.info/telecom/actualites/marche/ufc-333-rmc-sport-prix-canal-free-samedi-24" target="_blank" rel="noopener">25 € sans engagement</a>, ou 15 €/mois avec 12 mois d'engagement (non placé). Recentré sur les sports de combat (UFC).</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Un abonnement mensuel résiliable, indirect : même besoin, mais plus de droits en commun avec CANAL+.</li>
+            <li><strong>Face au Pass.</strong> Un mois vaut 25 ÷ 7,99 = 3,1 Pass.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="netflix">
+          <h5>TF1 via Netflix : 0 € de plus pour un abonné Netflix</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> <a class="src" href="https://www.abcbourse.com/marches/tf1-et-tf1-sont-desormais-integres-a-netflix-en-france_698550" target="_blank" rel="noopener">Les chaînes TF1 en direct sur Netflix</a> depuis le 19 juin 2026, sport compris. Le point est placé à 0 € parce que l'abonné Netflix ne paie rien de plus ; le prix de Netflix lui-même n'est pas dans notre relevé.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Il faut déjà payer Netflix : du sport en direct dans un abonnement pris pour autre chose.</li>
+            <li><strong>Face au Pass.</strong> Concurrent indirect : il n'enlève rien au Pass sur les matchs que seul CANAL+ diffuse.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="prime">
+          <h5>Prime Video : inclus dans Prime à 6,99 € par mois</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> Les sessions de soirée de <a class="src" href="https://www.echosdunet.net/tv/actualites/roland-garros-2026" target="_blank" rel="noopener">Roland-Garros en exclusivité</a>, incluses dans Prime à 6,99 €/mois. Le point est placé au prix de Prime.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Il faut l'abonnement Prime, que beaucoup de clients paient déjà pour la livraison.</li>
+            <li><strong>Face au Pass.</strong> Concurrent indirect, sur un événement que CANAL+ ne diffuse pas.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="coupes">
+          <h5>Pass Coupes d'Europe CANAL+ : 10 €, option réservée aux abonnés</h5>
+          <ul>
+            <li><strong>Le chiffre.</strong> <a class="src" href="https://www.echosdunet.net/tv/chaines/tnt/canal-plus" target="_blank" rel="noopener">10 € par mois</a>, une option qui s'ajoute à un abonnement CANAL+ existant.</li>
+            <li><strong>Pourquoi sur cette ligne.</strong> Réservé aux abonnés : un non-abonné paie en réalité l'abonnement en plus. C'est pourquoi ce plafond est prudent.</li>
+            <li><strong>Face au Pass.</strong> C'est <strong>notre plafond</strong> pour un match que seul CANAL+ diffuse (Ligue des champions, Premier League, Top 14, F1). n* = 10 ÷ 7,99 = 1,25 : le Pass doit rester nettement sous 10 € pour garder un intérêt.</li>
+          </ul>
+        </div>
+        <div class="map-item" data-for="bande1">
+          <h5>Ligne 1 : sans rien souscrire</h5>
+          <p>Ce que le client paie sans s'engager à rien : la télévision en clair (0 €)… et rien d'autre. Aucun acteur payant n'est sur cette ligne, parce que tous vendent du temps (un mois, un an) et jamais un match. C'est la case vide que le Pass Match occupe seul, à 7,99 €.</p>
+        </div>
+        <div class="map-item" data-for="bande2">
+          <h5>Ligne 2 : un mois d'abonnement, résiliable</h5>
+          <p>Notre règle : pour voir un match, le client prend un mois sans engagement chez un concurrent, puis résilie. Le prix placé est donc le prix mensuel sans engagement ; les tarifs avec 12 ou 24 mois d'engagement sont exclus. C'est de cette ligne que vient le plafond du Pass : environ 15 € (beIN, DAZN) pour un match aussi diffusé ailleurs.</p>
+        </div>
+        <div class="map-item" data-for="bande3">
+          <h5>Ligne 3 : réservé à ceux qui sont déjà abonnés</h5>
+          <p>Du sport inclus dans un abonnement pris pour autre chose (Netflix, Prime), ou une option vendue aux seuls abonnés (Pass Coupes d'Europe CANAL+). Le point est placé au prix de l'abonnement nécessaire quand nous l'avons relevé, et à 0 € de supplément sinon. Le Pass Coupes d'Europe, à 10 €, donne notre plafond pour un match que seul CANAL+ diffuse.</p>
+        </div>
+      </div>
     </div>
-    <div class="lecture"><p>Tous les acteurs payants vendent du temps (un mois, un an), jamais un match. Le Pass occupe seul la case « payant, sans engagement » : c'est son avantage, et c'est aussi pourquoi aucun prix de marché n'existe pour lui. Il faut le déduire du plafond ci-dessous et le mesurer auprès des clients (onglet 3).</p></div>
+    <div class="lecture"><p>Tous les acteurs payants vendent du temps (un mois, un an), jamais un match. Le Pass est seul sur la ligne « sans rien souscrire » côté payant : c'est son avantage, et c'est aussi pourquoi aucun prix de marché n'existe pour lui. Il faut le déduire du plafond ci-dessous et le mesurer auprès des clients (onglet 3).</p></div>
 
     <h3>La santé financière des concurrents</h3>
     <div class="tbl"><table>
@@ -589,6 +773,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 28px; }
 
     <h3>Le questionnaire</h3>
     <p>Nous avons construit un questionnaire en ligne, que nous avons diffusé nous-mêmes autour de nous : <a class="src" href="https://pexi58.github.io/questionnaire-pass-sport/" target="_blank" rel="noopener">pexi58.github.io/questionnaire-pass-sport</a>. Il se remplit en trois minutes et suit quatre parties.</p>
+    <p><a class="btn" href="https://pexi58.github.io/questionnaire-pass-sport/" target="_blank" rel="noopener">Ouvrir le questionnaire ↗</a><a class="btn ghost" href="analyse.html" target="_blank" rel="noopener">Voir le tableau de bord des réponses ↗</a></p>
     <div class="grid c2">
       <div class="card">
         <h4>Le déroulé</h4>
@@ -833,7 +1018,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 28px; }
         <li>Si les coûts fixes doublent (1&nbsp;092&nbsp;773&nbsp;€), la saison devient déficitaire : 121&nbsp;500 × 6,44 − 1&nbsp;092&nbsp;773 = −310&nbsp;678&nbsp;€.</li>
         <li>Point de rupture : avec les ventes prévues (121&nbsp;500 Pass), les coûts fixes peuvent monter jusqu'à 782&nbsp;096&nbsp;€ (121&nbsp;500 × 6,437) avant que le Pass perde de l'argent, soit <strong>43&nbsp;% de plus</strong> que le budget retenu.</li>
       </ul>
-      <p class="quote" style="margin-bottom:0">À l'oral, en une phrase : « 546&nbsp;000&nbsp;€, c'est une équipe de 5 personnes pendant 4 mois, un media buyer pendant la saison et une campagne d'une publicité par semaine auprès des 900&nbsp;000 utilisateurs d'IPTV. Nous avons pris le haut de chaque fourchette, et ce budget peut encore monter de 43&nbsp;% avant que le Pass perde de l'argent. »</p>
+      <p class="quote" style="margin-bottom:0">En une phrase : « 546&nbsp;000&nbsp;€, c'est une équipe de 5 personnes pendant 4 mois, un media buyer pendant la saison et une campagne d'une publicité par semaine auprès des 900&nbsp;000 utilisateurs d'IPTV. Nous avons pris le haut de chaque fourchette, et ce budget peut encore monter de 43&nbsp;% avant que le Pass perde de l'argent. »</p>
     </div>
 
     <nav class="pager"><a href="#prix"><small>Onglet précédent</small>3. Le prix psychologique</a><a href="#proposition" class="next"><small>Onglet suivant</small>5. La proposition</a></nav>
@@ -1023,7 +1208,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 28px; }
     }
     if (options.defiler !== false) {
       var top = panels[i].getBoundingClientRect().top + window.pageYOffset - 70;
-      window.scrollTo({ top: Math.max(0, top), behavior: options.immediat ? 'auto' : 'smooth' });
+      window.scrollTo(0, Math.max(0, top));                  // pas de défilement animé : la page est projetée à l'oral
     }
     try { tabs[i].scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) {}
     return true;
@@ -1053,13 +1238,41 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 28px; }
     e.preventDefault();
     activer(id);
   });
-  window.addEventListener('hashchange', function () {
+  /* Un lien vers un élément d'un onglet (#mapping, #vw…) ouvre l'onglet puis va à l'élément */
+  function ouvrirDepuisHash(premier) {
     var id = location.hash.slice(1);
-    if (ids.indexOf(id) >= 0) activer(id, { silencieux: true });
-  });
+    if (!id) { if (premier) activer(ids[0], { silencieux: true, defiler: false }); return; }
+    if (ids.indexOf(id) >= 0) { activer(id, { silencieux: true, defiler: !premier }); return; }
+    var cible = document.getElementById(id);
+    var panel = cible && cible.closest ? cible.closest('.panel') : null;
+    if (!panel) { if (premier) activer(ids[0], { silencieux: true, defiler: false }); return; }
+    activer(panel.id, { silencieux: true, defiler: false });
+    window.scrollTo(0, Math.max(0, cible.getBoundingClientRect().top + window.pageYOffset - 76));
+  }
+  window.addEventListener('hashchange', function () { ouvrirDepuisHash(false); });
+  ouvrirDepuisHash(true);
 
-  var initial = location.hash.slice(1);
-  activer(ids.indexOf(initial) >= 0 ? initial : ids[0], { silencieux: true, defiler: false });
+  /* ============================== Mapping cliquable ============================== */
+  var carte = document.getElementById('mapping');
+  if (carte) {
+    var acteurs = Array.prototype.slice.call(carte.querySelectorAll('.mp'));
+    var fiches = Array.prototype.slice.call(carte.querySelectorAll('.map-item'));
+    function montrerFiche(id) {
+      acteurs.forEach(function (g) {
+        var on = g.getAttribute('data-map') === id;
+        g.setAttribute('class', on ? 'mp sel' : 'mp');            // setAttribute : classList des SVG manque sur de vieux navigateurs
+        g.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      fiches.forEach(function (f) { f.className = f.getAttribute('data-for') === id ? 'map-item on' : 'map-item'; });
+    }
+    acteurs.forEach(function (g) {
+      g.addEventListener('click', function () { montrerFiche(g.getAttribute('data-map')); });
+      g.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); montrerFiche(g.getAttribute('data-map')); }
+      });
+    });
+    montrerFiche('pass');
+  }
 
   /* ============================== Van Westendorp ============================== */
   /* Chaque ligne = un répondant : [trop bon marché, bon marché, cher, trop cher], en euros.
