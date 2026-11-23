@@ -675,7 +675,11 @@ $("fichier").addEventListener("change", ev => {
 ["r_doublons", "r_mineurs", "r_jamais", "r_attention"].forEach(id => $(id).addEventListener("change", afficher));
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", afficher);
 
-// au démarrage : ?source=… dans l'adresse, sinon le lien mémorisé dans ce navigateur
+// Lien CSV publié de l'onglet « Réponses v2 » : la page se remplit toute seule, sans rien coller
+// (décision du groupe le 23/11/2026 : réponses anonymes, lien rendu public pour le prof).
+const LIEN_PAR_DEFAUT = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6gGlXJsTcb91liO3FpF8aRG6Txy3XaYRdh55qX8gvuMQWkRJNfAmegG76efSCMVQ-WklWbvl0w5fd/pub?gid=1082711852&single=true&output=csv";
+
+// au démarrage : ?source=… dans l'adresse, sinon le lien mémorisé dans ce navigateur, sinon le lien du groupe
 (function demarrer() {
   if (typeof Papa === "undefined" || typeof jStat === "undefined") {
     etat("Les bibliothèques de calcul ne se sont pas chargées : il faut une connexion internet."); return;
@@ -683,6 +687,7 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", afficher);
   const param = new URLSearchParams(location.search).get("source");
   let lien = param;
   if (!lien) { try { lien = localStorage.getItem(CLE_LIEN); } catch (e) { lien = null; } }
+  if (!lien) lien = LIEN_PAR_DEFAUT;
   if (lien) { $("lien").value = param ? "" : lien; chargerLien(lien); }
   // les réponses arrivent pendant la collecte : on relit le Sheet toutes les 10 minutes si la page reste ouverte
   setInterval(() => { const l = param || $("lien").value.trim(); if (l && BRUT && SOURCE === "Google Sheet") chargerLien(l); }, 10 * 60 * 1000);
